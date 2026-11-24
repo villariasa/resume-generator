@@ -14,7 +14,19 @@
 
   let { resume }: { resume: SavedResume } = $props();
 
-  let openStates = $state<Record<string, boolean>>({ basics: true });
+  // Every key must be pre-initialized: bind:open={undefined} on a prop with a
+  // fallback throws props_invalid_value in Svelte 5.
+  let openStates = $state<Record<string, boolean>>({
+    basics: true,
+    summary: false,
+    work: false,
+    projects: false,
+    education: false,
+    skills: false,
+    certifications: false,
+    languages: false,
+    custom: false,
+  });
 
   const isEmpty = $derived(
     !resume.data.basics.fullName &&
