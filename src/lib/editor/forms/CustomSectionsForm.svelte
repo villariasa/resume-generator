@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ResumeData } from '../../types';
   import { uid, move } from '../../utils';
+  import Icon from '../../ui/Icon.svelte';
   import DragList from '../DragList.svelte';
   import BulletList from '../BulletList.svelte';
 
@@ -38,9 +39,9 @@
         {/snippet}
       </DragList>
       <button type="button" class="btn btn-ghost btn-sm" onclick={() => section.entries.push({ id: uid(), heading: '', sub: '', body: '', bullets: [] })}>
-        + Add entry
+        <Icon name="plus" size={13} /> Add entry
       </button>
     </div>
   </div>
 {/each}
-<button type="button" class="btn btn-sm" onclick={addSection}>+ Add custom section</button>
+<button type="button" class="btn btn-sm" onclick={addSection}><Icon name="plus" size={13} /> Add custom section</button>

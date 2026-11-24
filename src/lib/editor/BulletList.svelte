@@ -2,6 +2,7 @@
   import type { Bullet } from '../types';
   import { uid, move } from '../utils';
   import DragList from './DragList.svelte';
+  import Icon from '../ui/Icon.svelte';
 
   let { bullets }: { bullets: Bullet[] } = $props();
 
@@ -37,11 +38,11 @@
             if (e.key === 'Backspace' && bullet.text === '' && bullets.length > 1) { e.preventDefault(); remove(i); }
           }}
         />
-        <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove bullet" onclick={() => remove(i)}>✕</button>
+        <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove bullet" onclick={() => remove(i)}><Icon name="x-mark" size={14} /></button>
       </div>
     {/snippet}
   </DragList>
   <button type="button" class="btn btn-ghost btn-sm" onclick={() => { bullets.push({ id: uid(), text: '' }); focusBullet(bullets.length - 1); }}>
-    + Add bullet
+    <Icon name="plus" size={13} /> Add bullet
   </button>
 </div>

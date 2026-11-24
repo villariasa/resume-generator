@@ -39,16 +39,20 @@ export function customSectionTitle(key: SectionKey, data: ResumeData): string {
   return data.customSections.find((s) => s.id === id)?.title ?? '';
 }
 
-/** Visible, content-bearing sections in display order. */
-export function visibleSections(data: ResumeData, settings: TemplateSettings): SectionKey[] {
+/** Visible sections in display order. With `includeEmpty`, empty built-in
+ *  sections stay visible so guide/placeholder content can render in them. */
+export function visibleSections(data: ResumeData, settings: TemplateSettings, includeEmpty = false): SectionKey[] {
   // Custom sections not yet in sectionOrder get appended automatically.
   const known = new Set(settings.sectionOrder);
   const extras = data.customSections
     .map((s) => `custom:${s.id}` as SectionKey)
     .filter((k) => !known.has(k));
-  return [...settings.sectionOrder, ...extras].filter(
-    (k) => !settings.hiddenSections.includes(k) && sectionHasContent(k, data),
-  );
+  return [...settings.sectionOrder, ...extras].filter((k) => {
+    if (settings.hiddenSections.includes(k)) return false;
+    // Custom sections never show guide content (we have none for them).
+    if (k.startsWith('custom:')) return sectionHasContent(k, data);
+    return includeEmpty || sectionHasContent(k, data);
+  });
 }
 
 export const SECTION_LABELS: Record<string, string> = {

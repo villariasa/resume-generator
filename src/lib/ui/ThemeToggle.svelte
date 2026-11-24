@@ -1,5 +1,6 @@
 <script lang="ts">
   import { app, toggleTheme } from '../state.svelte';
+  import Icon from './Icon.svelte';
 </script>
 
 <button
@@ -9,5 +10,5 @@
   aria-label={app.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
   onclick={toggleTheme}
 >
-  {app.theme === 'dark' ? '☀️' : '🌙'}
+  <Icon name={app.theme === 'dark' ? 'sun' : 'moon'} />
 </button>

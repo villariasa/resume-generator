@@ -13,6 +13,8 @@
   import { importJsonFile } from '../export/json';
   import TemplateCard from './TemplateCard.svelte';
   import ThemeToggle from '../ui/ThemeToggle.svelte';
+  import Icon from '../ui/Icon.svelte';
+  import Dialog from '../ui/Dialog.svelte';
 
   const previewData = exampleResume();
 
@@ -61,18 +63,15 @@
     openResume(resume);
   }
 
-  function removeResume(id: string, name: string) {
-    if (confirm(`Delete "${name}"? This can't be undone.`)) {
-      deleteResume(id);
-      refresh();
-    }
-  }
+  // shadcn-style confirm dialog state (never browser confirm())
+  let confirmState = $state<null | { kind: 'resume' | 'template'; id: string; name: string }>(null);
 
-  function removeTemplate(id: string, name: string) {
-    if (confirm(`Delete template "${name}"?`)) {
-      deleteCustomTemplate(id);
-      refresh();
-    }
+  function confirmDelete() {
+    if (!confirmState) return;
+    if (confirmState.kind === 'resume') deleteResume(confirmState.id);
+    else deleteCustomTemplate(confirmState.id);
+    confirmState = null;
+    refresh();
   }
 
   function fmtDate(iso: string): string {
@@ -92,11 +91,11 @@
       <div class="flex items-center gap-2">
         <ThemeToggle />
         <label class="btn btn-sm cursor-pointer">
-          ⬆ Import JSON
+          <Icon name="arrow-up-tray" size={14} /> Import JSON
           <input type="file" accept=".json,application/json" class="hidden" onchange={onImport} />
         </label>
         <button type="button" class="btn btn-primary btn-sm" onclick={() => startFromBuiltin('classic', true)}>
-          ✦ Start from example
+          <Icon name="sparkles" size={14} /> Start from example
         </button>
       </div>
     </header>
@@ -126,7 +125,7 @@
               >
                 Duplicate
               </button>
-              <button type="button" class="btn btn-ghost btn-sm !text-red-400/70 hover:!text-red-400" onclick={() => removeResume(entry.id, entry.name)}>
+              <button type="button" class="btn btn-ghost btn-sm !text-red-400/70 hover:!text-red-400" onclick={() => (confirmState = { kind: 'resume', id: entry.id, name: entry.name })}>
                 Delete
               </button>
             </div>
@@ -147,7 +146,7 @@
               data={previewData}
               settings={{ ...tpl.settings, templateId: tpl.baseTemplateId }}
               onpick={() => startFromCustom(tpl.id)}
-              ondelete={() => removeTemplate(tpl.id, tpl.name)}
+              ondelete={() => (confirmState = { kind: 'template', id: tpl.id, name: tpl.name })}
             />
           {/each}
         </div>
@@ -175,3 +174,17 @@
     </footer>
   </div>
 </div>
+
+<Dialog
+  open={confirmState !== null}
+  onclose={() => (confirmState = null)}
+  title={confirmState?.kind === 'template' ? 'Delete template?' : 'Delete resume?'}
+  description={confirmState ? `"${confirmState.name}" will be permanently deleted. This can't be undone.` : ''}
+>
+  {#snippet footer()}
+    <button type="button" class="btn btn-sm" onclick={() => (confirmState = null)}>Cancel</button>
+    <button type="button" class="btn btn-sm !border-red-500/60 !bg-red-500/15 !text-red-400 hover:!bg-red-500/25" onclick={confirmDelete}>
+      <Icon name="trash" size={13} /> Delete
+    </button>
+  {/snippet}
+</Dialog>

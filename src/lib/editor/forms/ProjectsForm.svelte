@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ResumeData } from '../../types';
   import { uid, move } from '../../utils';
+  import Icon from '../../ui/Icon.svelte';
   import DragList from '../DragList.svelte';
   import BulletList from '../BulletList.svelte';
 
@@ -35,4 +36,4 @@
     </div>
   {/snippet}
 </DragList>
-<button type="button" class="btn btn-sm" onclick={add}>+ Add project</button>
+<button type="button" class="btn btn-sm" onclick={add}><Icon name="plus" size={13} /> Add project</button>

@@ -8,6 +8,7 @@
   import PreviewPane from './PreviewPane.svelte';
   import CustomizerPanel from './CustomizerPanel.svelte';
   import ThemeToggle from '../ui/ThemeToggle.svelte';
+  import Icon from '../ui/Icon.svelte';
 
   const resume = $derived(app.current!);
 
@@ -38,7 +39,7 @@
       shareMsg = 'Link is very large (embedded photo?) — consider removing the photo before sharing.';
     }
     await navigator.clipboard.writeText(url);
-    shareMsg = shareMsg || 'Share link copied to clipboard ✓';
+    shareMsg = shareMsg || 'Share link copied to clipboard.';
     setTimeout(() => (shareMsg = ''), 4000);
   }
 
@@ -57,13 +58,13 @@
 <div class="flex h-dvh flex-col">
   <!-- Toolbar -->
   <header class="no-print flex items-center gap-3 border-b border-[var(--chrome-border)] bg-[var(--chrome-surface2)] px-4 py-2.5">
-    <button type="button" class="btn btn-ghost btn-sm" onclick={backToGallery}>← Gallery</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick={backToGallery}><Icon name="arrow-left" size={14} /> Gallery</button>
     <input
       class="input !w-56 !bg-transparent !border-transparent hover:!border-[var(--chrome-border)] focus:!border-indigo-500 font-semibold"
       bind:value={resume.name}
       aria-label="Resume name"
     />
-    <span class="text-xs text-[var(--chrome-faint)]">{app.saveState === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
+    <span class="text-xs text-[var(--chrome-faint)]">{app.saveState === 'saving' ? 'Saving…' : 'Saved'}</span>
 
     <div class="ml-auto flex items-center gap-2">
       <!-- mobile tabs -->
@@ -80,18 +81,18 @@
       <ThemeToggle />
 
       <button type="button" class="btn btn-sm {app.customizerOpen ? '!border-indigo-500' : ''}" onclick={() => (app.customizerOpen = !app.customizerOpen)}>
-        🎨 Design
+        <Icon name="swatch" size={14} /> Design
       </button>
 
       <div class="relative">
-        <button type="button" class="btn btn-primary btn-sm" onclick={() => (exportOpen = !exportOpen)}>Export ▾</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick={() => (exportOpen = !exportOpen)}>Export <Icon name="chevron-down" size={13} /></button>
         {#if exportOpen}
           <div class="absolute right-0 top-full z-50 mt-1 w-56 card p-1.5 shadow-xl">
-            <button type="button" class="btn btn-ghost w-full justify-start" onclick={printPdf}>📄 Download PDF (print)</button>
-            <button type="button" class="btn btn-ghost w-full justify-start" onclick={() => { exportOpen = false; flushSave(); exportJson($state.snapshot(resume)); }}>💾 Export JSON</button>
-            <button type="button" class="btn btn-ghost w-full justify-start" onclick={() => { exportOpen = false; flushSave(); exportDocx($state.snapshot(resume)); }}>📝 Export DOCX</button>
-            <button type="button" class="btn btn-ghost w-full justify-start" onclick={copyShareLink}>🔗 Copy share link</button>
-            <button type="button" class="btn btn-ghost w-full justify-start" onclick={openAts}>🤖 ATS plain text</button>
+            <button type="button" class="btn btn-ghost w-full justify-start" onclick={printPdf}><Icon name="document-arrow-down" size={15} /> Download PDF (print)</button>
+            <button type="button" class="btn btn-ghost w-full justify-start" onclick={() => { exportOpen = false; flushSave(); exportJson($state.snapshot(resume)); }}><Icon name="arrow-down-tray" size={15} /> Export JSON</button>
+            <button type="button" class="btn btn-ghost w-full justify-start" onclick={() => { exportOpen = false; flushSave(); exportDocx($state.snapshot(resume)); }}><Icon name="document-text" size={15} /> Export DOCX</button>
+            <button type="button" class="btn btn-ghost w-full justify-start" onclick={copyShareLink}><Icon name="link" size={15} /> Copy share link</button>
+            <button type="button" class="btn btn-ghost w-full justify-start" onclick={openAts}><Icon name="clipboard" size={15} /> ATS plain text</button>
           </div>
         {/if}
       </div>
@@ -125,7 +126,7 @@
     <div class="card w-full max-w-2xl p-5">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">ATS plain-text version</h2>
-        <button type="button" class="btn btn-ghost btn-sm" onclick={() => (atsOpen = false)}>✕</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick={() => (atsOpen = false)} aria-label="Close"><Icon name="x-mark" size={14} /></button>
       </div>
       <p class="mt-1 text-xs text-[var(--chrome-muted)]">Paste this into application forms that mangle formatting.</p>
       <textarea class="input mt-3 h-80 font-mono text-xs" readonly value={atsText}></textarea>

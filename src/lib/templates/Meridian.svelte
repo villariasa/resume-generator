@@ -3,12 +3,22 @@
   import { visibleSections } from './format';
   import SectionRenderer from './SectionRenderer.svelte';
 
-  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
+  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
 
-  const all = $derived(visibleSections(data, settings));
+  const all = $derived(visibleSections(data, settings, !!guide));
   const twoCol = $derived(settings.columns === 2);
   const sidebar = $derived(twoCol ? all.filter((k) => settings.sidebarSections.includes(k)) : []);
   const main = $derived(twoCol ? all.filter((k) => !settings.sidebarSections.includes(k)) : all);
+
+  const contactParts = $derived(
+    [data.basics.email, data.basics.phone, data.basics.location, data.basics.website, ...data.basics.links.map((l) => l.url || l.label)]
+      .filter((p) => p && p.trim()),
+  );
+  const contactGuide = $derived(
+    contactParts.length === 0 && guide
+      ? [guide.basics.email, guide.basics.phone, guide.basics.location, guide.basics.website].filter(Boolean)
+      : null,
+  );
 </script>
 
 <div class="tpl" class:two-col={twoCol}>
@@ -17,32 +27,32 @@
       {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
-      <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
-      {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
+      <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
+      {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
 
-      <div class="side-contact">
-        {#each [data.basics.email, data.basics.phone, data.basics.location, data.basics.website, ...data.basics.links.map((l) => l.url || l.label)].filter((p) => p && p.trim()) as part}
+      <div class="side-contact" class:ph={!!contactGuide}>
+        {#each contactGuide ?? contactParts as part}
           <p class="side-contact-line">{part}</p>
         {/each}
       </div>
 
-      <SectionRenderer {data} sections={sidebar} />
+      <SectionRenderer {data} sections={sidebar} {guide} />
     </aside>
     <div class="main">
-      <SectionRenderer {data} sections={main} />
+      <SectionRenderer {data} sections={main} {guide} />
     </div>
   {:else}
     <div class="single">
       <header class="single-head">
-        <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
-        {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
-        <div class="side-contact single-contact">
-          {#each [data.basics.email, data.basics.phone, data.basics.location, data.basics.website].filter((p) => p && p.trim()) as part}
+        <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
+        {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
+        <div class="side-contact single-contact" class:ph={!!contactGuide}>
+          {#each contactGuide ?? contactParts as part}
             <span class="side-contact-line">{part}</span>
           {/each}
         </div>
       </header>
-      <SectionRenderer {data} sections={main} />
+      <SectionRenderer {data} sections={main} {guide} />
     </div>
   {/if}
 </div>

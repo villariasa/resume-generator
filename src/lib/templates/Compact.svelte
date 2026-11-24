@@ -4,8 +4,8 @@
   import SectionRenderer from './SectionRenderer.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
-  const sections = $derived(visibleSections(data, settings));
+  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  const sections = $derived(visibleSections(data, settings, !!guide));
   const photo = $derived(settings.showPhoto ? data.basics.photoDataUrl : undefined);
 </script>
 
@@ -13,15 +13,15 @@
   <header class="head">
     <div class="head-left">
       {#if photo}<img class="photo" src={photo} alt="" />{/if}
-      <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
+      <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
     </div>
     <div class="head-right">
-      {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
-      <ContactLine basics={data.basics} separator=" | " />
+      {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
+      <ContactLine basics={data.basics} guide={guide?.basics} separator=" | " />
     </div>
   </header>
 
-  <SectionRenderer {data} {sections} />
+  <SectionRenderer {data} {sections} {guide} />
 </div>
 
 <style>

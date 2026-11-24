@@ -62,8 +62,11 @@ body {
   .ph { display: none !important; }
 }
 
-/* Placeholder (example) text shown in preview for empty fields — never printed/exported */
+/* Placeholder (example/guide) content shown in preview for empty fields —
+   never printed/exported. Inline fields go gray-italic; whole guide sections
+   (.ph-block) keep their layout but fade so "replace me" reads instantly. */
 .ph { color: #9ca3af; font-style: italic; }
+.ph-block { color: inherit; font-style: normal; opacity: 0.5; }
 
 /* ───────────────────────── Editor form controls ───────────────────── */
 .label {

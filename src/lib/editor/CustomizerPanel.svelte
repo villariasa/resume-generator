@@ -6,6 +6,8 @@
   import { BUILTIN_TEMPLATES, resolveTemplate } from '../templates/registry';
   import { saveCustomTemplate } from '../storage';
   import { uid, move } from '../utils';
+  import Icon from '../ui/Icon.svelte';
+  import Dialog from '../ui/Dialog.svelte';
 
   let { resume }: { resume: SavedResume } = $props();
 
@@ -36,19 +38,22 @@
   }
 
   let savedTplMsg = $state('');
+  let nameDialogOpen = $state(false);
+  let templateName = $state('My template');
+
   function saveAsTemplate() {
-    const name = prompt('Name your template:', 'My template');
-    if (!name) return;
+    if (!templateName.trim()) return;
     const { templateId, ...rest } = $state.snapshot(resume.settings);
     saveCustomTemplate({
       id: uid(),
       schemaVersion: SCHEMA_VERSION,
-      name,
+      name: templateName.trim(),
       baseTemplateId: templateId.startsWith('custom:') ? def.id : templateId,
       settings: rest,
       createdAt: new Date().toISOString(),
     });
-    savedTplMsg = `Saved "${name}" — find it in the gallery.`;
+    savedTplMsg = `Saved "${templateName.trim()}" — find it in the gallery.`;
+    nameDialogOpen = false;
     setTimeout(() => (savedTplMsg = ''), 4000);
   }
 </script>
@@ -66,7 +71,7 @@
             resume.settings.columns = tpl.defaults.columns;
           }}
         >
-          {tpl.name}{tpl.atsSafe ? ' ✓ATS' : ''}
+          {tpl.name}{#if tpl.atsSafe}<Icon name="check" size={11} class="text-emerald-500" /><span class="text-[10px] tracking-wide">ATS</span>{/if}
         </button>
       {/each}
     </div>
@@ -149,8 +154,8 @@
         {@const hidden = resume.settings.hiddenSections.includes(key)}
         <div class="flex items-center gap-2 rounded-md border border-[var(--chrome-border)] bg-[var(--chrome-surface2)] px-2 py-1.5">
           <div class="flex flex-col">
-            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move up" onclick={() => move(resume.settings.sectionOrder, i, i - 1)}>▲</button>
-            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move down" onclick={() => move(resume.settings.sectionOrder, i, i + 1)}>▼</button>
+            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move up" onclick={() => move(resume.settings.sectionOrder, i, i - 1)}><Icon name="chevron-up" size={11} /></button>
+            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move down" onclick={() => move(resume.settings.sectionOrder, i, i + 1)}><Icon name="chevron-down" size={11} /></button>
           </div>
           <span class="flex-1 text-xs {hidden ? 'line-through text-[var(--chrome-faint)]' : ''}">{sectionLabel(key, resume.data)}</span>
           {#if def.supportsColumns && resume.settings.columns === 2}
@@ -160,11 +165,11 @@
               title="Toggle sidebar placement"
               onclick={() => toggleSidebar(key)}
             >
-              ◧
+              <Icon name="view-columns" size={13} />
             </button>
           {/if}
           <button type="button" class="btn btn-ghost btn-sm !px-1.5 !text-[10px]" title={hidden ? 'Show section' : 'Hide section'} onclick={() => toggleHidden(key)}>
-            {hidden ? '🚫' : '👁'}
+            <Icon name={hidden ? 'eye-slash' : 'eye'} size={13} />
           </button>
         </div>
       {/each}
@@ -172,7 +177,21 @@
   </div>
 
   <div class="border-t border-[var(--chrome-border)] pt-4">
-    <button type="button" class="btn w-full justify-center" onclick={saveAsTemplate}>★ Save current look as my template</button>
+    <button type="button" class="btn w-full justify-center" onclick={() => (nameDialogOpen = true)}><Icon name="star" size={14} /> Save current look as my template</button>
     {#if savedTplMsg}<p class="mt-2 text-xs text-emerald-400">{savedTplMsg}</p>{/if}
   </div>
 </div>
+
+<Dialog bind:open={nameDialogOpen} title="Save as template" description="Your current design settings will be saved as a reusable template in the gallery.">
+  <input
+    class="input"
+    bind:value={templateName}
+    placeholder="Template name"
+    aria-label="Template name"
+    onkeydown={(e) => e.key === 'Enter' && saveAsTemplate()}
+  />
+  {#snippet footer()}
+    <button type="button" class="btn btn-sm" onclick={() => (nameDialogOpen = false)}>Cancel</button>
+    <button type="button" class="btn btn-primary btn-sm" disabled={!templateName.trim()} onclick={saveAsTemplate}>Save template</button>
+  {/snippet}
+</Dialog>

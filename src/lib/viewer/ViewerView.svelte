@@ -4,6 +4,7 @@
   import { exportJson } from '../export/json';
   import ResumePage from '../templates/ResumePage.svelte';
   import ThemeToggle from '../ui/ThemeToggle.svelte';
+  import Icon from '../ui/Icon.svelte';
 
   const shared = $derived(app.shared!);
 
@@ -28,15 +29,15 @@
     </p>
     <div class="flex gap-2">
       <ThemeToggle />
-      <button type="button" class="btn btn-sm" onclick={() => window.print()}>📄 Download PDF</button>
+      <button type="button" class="btn btn-sm" onclick={() => window.print()}><Icon name="document-arrow-down" size={14} /> Download PDF</button>
       <button
         type="button"
         class="btn btn-sm"
         onclick={() => exportJson({ ...newResume(shared.settings.templateId, $state.snapshot(shared.data), $state.snapshot(shared.settings)), name: shared.data.basics.fullName || 'shared-resume' })}
       >
-        💾 JSON
+        <Icon name="arrow-down-tray" size={14} /> JSON
       </button>
-      <button type="button" class="btn btn-primary btn-sm" onclick={openInEditor}>✎ Open in editor</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick={openInEditor}><Icon name="pencil-square" size={14} /> Open in editor</button>
     </div>
   </header>
 

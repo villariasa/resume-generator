@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import Icon from '../ui/Icon.svelte';
 
   let {
     title,
@@ -25,7 +26,7 @@
       <span class="text-sm font-semibold">{title}</span>
       {#if subtitle}<span class="ml-2 text-xs text-[var(--chrome-muted)]">{subtitle}</span>{/if}
     </span>
-    <span class="text-[var(--chrome-muted)] text-xs transition-transform {open ? 'rotate-90' : ''}">▶</span>
+    <span class="text-[var(--chrome-muted)] transition-transform {open ? 'rotate-90' : ''}"><Icon name="chevron-right" size={14} /></span>
   </button>
   {#if open}
     <div class="px-4 pb-4 pt-1 border-t border-[var(--chrome-border)]">

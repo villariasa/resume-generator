@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ResumeData } from '../../types';
   import { uid } from '../../utils';
+  import Icon from '../../ui/Icon.svelte';
 
   let { data }: { data: ResumeData } = $props();
 
@@ -54,10 +55,10 @@
     <div class="flex gap-2 mb-2">
       <input class="input !w-32" bind:value={link.label} placeholder="GitHub" aria-label="Link label" />
       <input class="input" bind:value={link.url} placeholder="github.com/you" aria-label="Link URL" />
-      <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove link" onclick={() => data.basics.links.splice(i, 1)}>✕</button>
+      <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove link" onclick={() => data.basics.links.splice(i, 1)}><Icon name="x-mark" size={14} /></button>
     </div>
   {/each}
-  <button type="button" class="btn btn-ghost btn-sm" onclick={addLink}>+ Add link</button>
+  <button type="button" class="btn btn-ghost btn-sm" onclick={addLink}><Icon name="plus" size={13} /> Add link</button>
 </div>
 
 <div class="mt-3 flex items-center gap-3">

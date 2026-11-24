@@ -4,28 +4,28 @@
   import SectionRenderer from './SectionRenderer.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
-  const sections = $derived(visibleSections(data, settings));
+  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  const sections = $derived(visibleSections(data, settings, !!guide));
 </script>
 
 <div class="tpl">
   <header class="band">
     <div class="band-inner">
       <div>
-        <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
-        {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
+        <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
+        {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
       </div>
       {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
     </div>
     <div class="band-contact">
-      <ContactLine basics={data.basics} separator="    " />
+      <ContactLine basics={data.basics} guide={guide?.basics} separator="    " />
     </div>
   </header>
 
   <div class="body">
-    <SectionRenderer {data} {sections} />
+    <SectionRenderer {data} {sections} {guide} />
   </div>
 </div>
 

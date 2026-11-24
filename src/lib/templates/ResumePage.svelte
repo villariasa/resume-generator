@@ -2,8 +2,22 @@
   import type { ResumeData, TemplateSettings } from '../types';
   import { DENSITY_FACTOR, DENSITY_FONT_SIZE, FONT_PAIRINGS, PAGE_DIMENSIONS } from './theme';
   import { resolveTemplate } from './registry';
+  import { exampleResume } from '../example';
 
-  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
+  let {
+    data,
+    settings,
+    guides = false,
+  }: {
+    data: ResumeData;
+    settings: TemplateSettings;
+    // Editor-only: show greyed example content in empty fields/sections.
+    guides?: boolean;
+  } = $props();
+
+  // Created once so guide entry ids stay stable across re-renders.
+  const guideData = exampleResume();
+  const guide = $derived(guides ? guideData : null);
 
   const resolved = $derived(resolveTemplate(settings));
   const dims = $derived(PAGE_DIMENSIONS[resolved.settings.pageSize]);
@@ -30,7 +44,7 @@
 </svelte:head>
 
 <div id="print-root" class="resume-page" style={styleVars}>
-  <Template {data} settings={resolved.settings} />
+  <Template {data} settings={resolved.settings} {guide} />
 </div>
 
 <style>
@@ -42,6 +56,9 @@
     line-height: 1.45;
     box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.55);
     box-sizing: border-box;
+    /* Long tokens (URLs, emails, dense skill lists) must never escape the
+       page box or a sidebar column — inherited by every template. */
+    overflow-wrap: break-word;
   }
 
   /* ── Baseline resume typography every template inherits ───────────── */
@@ -83,7 +100,12 @@
     font-size: calc(var(--fs-base) * 0.88);
     color: #5b6472;
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 2px 10px;
+    text-align: right;
+  }
+  .resume-page :global(.entry-meta .entry-dates) {
     white-space: nowrap;
   }
   .resume-page :global(.entry-tech) {
@@ -114,12 +136,30 @@
     flex-direction: column;
     gap: calc(4px * var(--space));
   }
+  .resume-page :global(.skill-group) {
+    min-width: 0;
+  }
   .resume-page :global(.skill-label) {
     font-weight: 600;
     margin-right: 6px;
   }
   .resume-page :global(.skill-label)::after {
     content: ':';
+  }
+  /* Semantic wrapped list: reads as a clean separated run of items on screen
+     and in PDF, parses as a real list for ATS. Never overflows its column. */
+  .resume-page :global(.skill-items) {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .resume-page :global(.skill-item) {
+    display: inline;
+  }
+  .resume-page :global(.skill-items .skill-item:not(:last-child))::after {
+    content: ' · ';
+    color: #8a93a2;
   }
   .resume-page :global(.cert-list) {
     margin: 0;

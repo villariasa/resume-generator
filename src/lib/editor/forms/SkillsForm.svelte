@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ResumeData } from '../../types';
   import { uid, move } from '../../utils';
+  import Icon from '../../ui/Icon.svelte';
   import DragList from '../DragList.svelte';
 
   let { data }: { data: ResumeData } = $props();
@@ -21,8 +22,8 @@
         placeholder="TypeScript, PHP, SQL…"
         aria-label="Skills, comma separated"
       />
-      <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove group" onclick={() => data.skills.splice(i, 1)}>✕</button>
+      <button type="button" class="btn btn-ghost btn-sm" aria-label="Remove group" onclick={() => data.skills.splice(i, 1)}><Icon name="x-mark" size={14} /></button>
     </div>
   {/snippet}
 </DragList>
-<button type="button" class="btn btn-sm" onclick={add}>+ Add skill group</button>
+<button type="button" class="btn btn-sm" onclick={add}><Icon name="plus" size={13} /> Add skill group</button>

@@ -11,7 +11,11 @@ import Executive from './Executive.svelte';
 import Atlas from './Atlas.svelte';
 import Onyx from './Onyx.svelte';
 
-export type TemplateComponent = Component<{ data: ResumeData; settings: TemplateSettings }>;
+export type TemplateComponent = Component<{
+  data: ResumeData;
+  settings: TemplateSettings;
+  guide?: ResumeData | null;
+}>;
 
 export interface TemplateDef {
   id: string;

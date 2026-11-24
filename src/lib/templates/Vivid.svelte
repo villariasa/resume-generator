@@ -4,9 +4,9 @@
   import SectionRenderer from './SectionRenderer.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
+  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
 
-  const all = $derived(visibleSections(data, settings));
+  const all = $derived(visibleSections(data, settings, !!guide));
   const twoCol = $derived(settings.columns === 2);
   const sidebar = $derived(twoCol ? all.filter((k) => settings.sidebarSections.includes(k)) : []);
   const main = $derived(twoCol ? all.filter((k) => !settings.sidebarSections.includes(k)) : all);
@@ -18,19 +18,19 @@
       <img class="photo" src={data.basics.photoDataUrl} alt="" />
     {/if}
     <div>
-      <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
-      {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
-      <ContactLine basics={data.basics} />
+      <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
+      {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
+      <ContactLine basics={data.basics} guide={guide?.basics} />
     </div>
   </header>
 
   <div class="body" class:two-col={twoCol}>
     <div class="main">
-      <SectionRenderer {data} sections={main} />
+      <SectionRenderer {data} sections={main} {guide} />
     </div>
     {#if twoCol}
       <aside class="side">
-        <SectionRenderer {data} sections={sidebar} />
+        <SectionRenderer {data} sections={sidebar} {guide} />
       </aside>
     {/if}
   </div>

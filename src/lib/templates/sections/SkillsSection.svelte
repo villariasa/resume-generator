@@ -11,11 +11,11 @@
     {#each groups as group (group.id)}
       <div class="skill-group">
         {#if group.label}<span class="skill-label">{group.label}</span>{/if}
-        <span class="skill-items">
-          {#each group.items as item, i}
-            {#if i > 0}<span class="skill-sep">, </span>{/if}<span class="skill-item">{item}</span>
+        <ul class="skill-items">
+          {#each group.items as item}
+            <li class="skill-item">{item}</li>
           {/each}
-        </span>
+        </ul>
       </div>
     {/each}
   </div>
