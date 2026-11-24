@@ -7,6 +7,9 @@ import Meridian from './Meridian.svelte';
 import Dossier from './Dossier.svelte';
 import Compact from './Compact.svelte';
 import Vivid from './Vivid.svelte';
+import Executive from './Executive.svelte';
+import Atlas from './Atlas.svelte';
+import Onyx from './Onyx.svelte';
 
 export type TemplateComponent = Component<{ data: ResumeData; settings: TemplateSettings }>;
 
@@ -21,6 +24,33 @@ export interface TemplateDef {
 }
 
 export const BUILTIN_TEMPLATES: TemplateDef[] = [
+  {
+    id: 'executive',
+    name: 'Executive',
+    description: 'Centered small-caps name, double hairline rules, flanked section headings. The law/finance-grade formal pick.',
+    component: Executive as TemplateComponent,
+    defaults: { ...defaultSettings('executive'), accentColor: '#1f2937', fontPairing: 'source-serif' },
+    supportsColumns: false,
+    atsSafe: true,
+  },
+  {
+    id: 'atlas',
+    name: 'Atlas',
+    description: 'The consulting/banking CV format — dates and locations in a left gutter, achievements to the right. Reads instantly to recruiters.',
+    component: Atlas as TemplateComponent,
+    defaults: { ...defaultSettings('atlas'), accentColor: '#1e3a5f' },
+    supportsColumns: false,
+    atsSafe: true,
+  },
+  {
+    id: 'onyx',
+    name: 'Onyx',
+    description: 'Charcoal executive header band with small-caps name and accent-ruled sections. Senior and composed, photo optional.',
+    component: Onyx as TemplateComponent,
+    defaults: { ...defaultSettings('onyx'), accentColor: '#b45309', fontPairing: 'source-serif' },
+    supportsColumns: false,
+    atsSafe: false,
+  },
   {
     id: 'classic',
     name: 'Classic',

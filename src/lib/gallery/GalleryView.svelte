@@ -136,7 +136,7 @@
     {#if customTemplates.length > 0}
       <section class="mt-10">
         <h2 class="label !text-[13px]">My templates</h2>
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {#each customTemplates as tpl (tpl.id)}
             <TemplateCard
               name={tpl.name}
@@ -154,7 +154,7 @@
 
     <section class="mt-10">
       <h2 class="label !text-[13px]">Templates</h2>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {#each BUILTIN_TEMPLATES as tpl (tpl.id)}
           <TemplateCard
             name={tpl.name}
