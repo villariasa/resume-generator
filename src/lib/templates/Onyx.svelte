@@ -15,7 +15,7 @@
         <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
         {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
       </div>
-      {#if data.basics.photoDataUrl}
+      {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
     </div>

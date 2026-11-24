@@ -119,6 +119,9 @@ export interface TemplateSettings {
   hiddenSections: SectionKey[];
   columns: 1 | 2;
   sidebarSections: SectionKey[];
+  // Render the uploaded photo on templates. Off by default makes sense for
+  // US/ATS submissions; on is the norm in PH/Asia/EU.
+  showPhoto: boolean;
 }
 
 export interface SavedResume {
@@ -168,6 +171,7 @@ export function defaultSettings(templateId = 'classic'): TemplateSettings {
     hiddenSections: [],
     columns: 1,
     sidebarSections: ['skills', 'languages', 'certifications'],
+    showPhoto: true,
   };
 }
 

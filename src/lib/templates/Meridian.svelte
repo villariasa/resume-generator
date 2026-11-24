@@ -14,7 +14,7 @@
 <div class="tpl" class:two-col={twoCol}>
   {#if twoCol}
     <aside class="side">
-      {#if data.basics.photoDataUrl}
+      {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
       <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>

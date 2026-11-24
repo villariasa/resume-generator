@@ -120,6 +120,18 @@
     </div>
   </div>
 
+  <div>
+    <label class="flex items-center gap-2 text-sm cursor-pointer">
+      <input type="checkbox" bind:checked={resume.settings.showPhoto} class="accent-indigo-500" />
+      Show photo on the resume
+    </label>
+    {#if resume.settings.showPhoto && !resume.data.basics.photoDataUrl}
+      <p class="mt-1 text-xs text-[#8b93a3]">No photo uploaded yet — add one under Basics.</p>
+    {:else if !resume.settings.showPhoto}
+      <p class="mt-1 text-xs text-[#8b93a3]">Tip: photo-free is the ATS-safe convention for US applications.</p>
+    {/if}
+  </div>
+
   {#if def.supportsColumns}
     <div>
       <span class="label">Layout</span>

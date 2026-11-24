@@ -6,13 +6,17 @@
 
   let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
   const sections = $derived(visibleSections(data, settings));
+  const photo = $derived(settings.showPhoto ? data.basics.photoDataUrl : undefined);
 </script>
 
 <div class="tpl">
   <header class="head">
-    <div>
-      <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
-      {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
+    <div class="head-left">
+      {#if photo}<img class="photo" src={photo} alt="" />{/if}
+      <div>
+        <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
+        {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
+      </div>
     </div>
     <div class="head-contact">
       <ContactLine basics={data.basics} separator="  " />
@@ -33,6 +37,20 @@
     gap: 20px;
     border-bottom: 2px solid #1a1d23;
     padding-bottom: calc(14px * var(--space));
+  }
+  .head-left {
+    display: flex;
+    align-items: flex-end;
+    gap: calc(16px * var(--space));
+  }
+  .photo {
+    width: calc(62px * var(--space));
+    height: calc(62px * var(--space));
+    border-radius: 2px;
+    object-fit: cover;
+    filter: grayscale(0.25);
+    border: 1px solid #1a1d23;
+    flex-shrink: 0;
   }
   .name {
     font-family: var(--font-heading);

@@ -6,10 +6,12 @@
 
   let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
   const sections = $derived(visibleSections(data, settings));
+  const photo = $derived(settings.showPhoto ? data.basics.photoDataUrl : undefined);
 </script>
 
 <div class="tpl">
   <header class="head">
+    {#if photo}<img class="photo" src={photo} alt="" />{/if}
     <h1 class="name">{data.basics.fullName || 'Your Name'}</h1>
     {#if data.basics.headline}<p class="headline">{data.basics.headline}</p>{/if}
     <div class="rule-double"></div>
@@ -25,6 +27,16 @@
   }
   .head {
     text-align: center;
+  }
+  .photo {
+    width: calc(66px * var(--space));
+    height: calc(66px * var(--space));
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto calc(10px * var(--space));
+    display: block;
+    border: 1px solid #1a1d23;
+    padding: 2px;
   }
   .name {
     font-family: var(--font-heading);

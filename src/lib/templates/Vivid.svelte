@@ -14,7 +14,7 @@
 
 <div class="tpl">
   <header class="band">
-    {#if data.basics.photoDataUrl}
+    {#if data.basics.photoDataUrl && settings.showPhoto}
       <img class="photo" src={data.basics.photoDataUrl} alt="" />
     {/if}
     <div>
