@@ -29,7 +29,13 @@
 </script>
 
 {#each sections as key (key)}
-  {@const isGuide = !!guide && !key.startsWith('custom:') && !sectionHasContent(key, data)}
+  <!-- Summary is a single scalar field, not a list of entries — there's
+       always something real to click into and type, even when it's empty,
+       so (unlike the array sections below) it should never fall back to the
+       non-interactive guide swap while actively editing. Array sections
+       with zero entries have nothing to click on the page yet; add the
+       first one from the side panel, same as before. -->
+  {@const isGuide = !!guide && !key.startsWith('custom:') && !sectionHasContent(key, data) && !(editable && key === 'summary')}
   {@const d = isGuide && guide ? guide : data}
   {@const sectionEditable = editable && !isGuide}
   <div class={isGuide ? 'ph ph-block' : 'contents'}>

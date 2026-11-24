@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { app, flushSave, scheduleSave } from '../state.svelte';
   import { encodeShareUrl } from '../share';
   import { exportJson } from '../export/json';
@@ -11,6 +12,7 @@
   import Icon from '../ui/Icon.svelte';
   import AiAssistModal from '../ai/AiAssistModal.svelte';
   import Dialog from '../ui/Dialog.svelte';
+  import { printResume } from '../print';
 
   const resume = $derived(app.current!);
 
@@ -22,6 +24,107 @@
     scheduleSave();
   });
 
+  // ── Undo / redo ──────────────────────────────────────────────────────
+  // Scoped to resume.data + resume.settings (content + design), not the
+  // resume's name. Checkpoints are debounced (same cadence as autosave) so
+  // undo reverts a pause-worth of typing at a time, not one keystroke.
+  const MAX_HISTORY = 100;
+  const HISTORY_DEBOUNCE = 600;
+
+  function snapshotNow(): string {
+    return JSON.stringify({ data: $state.snapshot(resume.data), settings: $state.snapshot(resume.settings) });
+  }
+
+  let historyPast = $state<string[]>([]);
+  let historyFuture = $state<string[]>([]);
+  let historyCurrent = $state('');
+  let historyTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // Reset history whenever a different resume is opened. `untrack` is
+  // essential here — snapshotNow() reads through resume.data/settings, and
+  // without it this effect would (re-)fire on every edit too, wiping the
+  // history we're trying to build.
+  $effect(() => {
+    void resume.id;
+    untrack(() => {
+      historyCurrent = snapshotNow();
+      historyPast = [];
+      historyFuture = [];
+    });
+  });
+
+  $effect(() => {
+    void JSON.stringify(resume.data);
+    void JSON.stringify(resume.settings);
+    clearTimeout(historyTimer);
+    historyTimer = setTimeout(() => {
+      const snap = snapshotNow();
+      if (snap === historyCurrent) return; // no-op (e.g. our own undo/redo just ran)
+      historyPast = [...historyPast, historyCurrent].slice(-MAX_HISTORY);
+      historyCurrent = snap;
+      historyFuture = [];
+    }, HISTORY_DEBOUNCE);
+  });
+
+  function applySnapshot(json: string) {
+    const parsed = JSON.parse(json);
+    resume.data = parsed.data;
+    resume.settings = parsed.settings;
+    historyCurrent = json;
+  }
+
+  /** Commits whatever's been typed since the last checkpoint, so pressing
+   *  undo right after typing reverts that typing instead of being a no-op. */
+  function flushPendingHistory() {
+    clearTimeout(historyTimer);
+    const snap = snapshotNow();
+    if (snap !== historyCurrent) {
+      historyPast = [...historyPast, historyCurrent].slice(-MAX_HISTORY);
+      historyCurrent = snap;
+      historyFuture = [];
+    }
+  }
+
+  function undo() {
+    flushPendingHistory();
+    if (historyPast.length === 0) return;
+    const prev = historyPast[historyPast.length - 1];
+    historyPast = historyPast.slice(0, -1);
+    historyFuture = [historyCurrent, ...historyFuture].slice(0, MAX_HISTORY);
+    applySnapshot(prev);
+  }
+
+  function redo() {
+    clearTimeout(historyTimer);
+    if (historyFuture.length === 0) return;
+    const next = historyFuture[0];
+    historyFuture = historyFuture.slice(1);
+    historyPast = [...historyPast, historyCurrent].slice(-MAX_HISTORY);
+    applySnapshot(next);
+  }
+
+  const canUndo = $derived(historyPast.length > 0);
+  const canRedo = $derived(historyFuture.length > 0);
+
+  function isEditableTarget(el: EventTarget | null): boolean {
+    return el instanceof HTMLElement && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  }
+
+  // Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y) — only when focus ISN'T in a
+  // text field/contenteditable, so each field's own native undo still works
+  // normally while actively typing in it.
+  function onWindowKeydown(e: KeyboardEvent) {
+    if (!(e.ctrlKey || e.metaKey) || isEditableTarget(e.target)) return;
+    const key = e.key.toLowerCase();
+    if (key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+    } else if ((key === 'z' && e.shiftKey) || key === 'y') {
+      e.preventDefault();
+      redo();
+    }
+  }
+
   let aiOpen = $state(false);
   let exportOpen = $state(false);
   let atsOpen = $state(false);
@@ -31,7 +134,7 @@
   function printPdf() {
     exportOpen = false;
     flushSave();
-    window.print();
+    printResume();
   }
 
   async function copyShareLink() {
@@ -59,6 +162,8 @@
   }
 </script>
 
+<svelte:window onkeydown={onWindowKeydown} />
+
 <div class="flex h-dvh flex-col">
   <!-- Toolbar -->
   <header class="no-print flex items-center gap-3 border-b border-[var(--chrome-border)] bg-[var(--chrome-surface2)] px-4 py-2.5">
@@ -68,6 +173,15 @@
       bind:value={resume.name}
       aria-label="Resume name"
     />
+
+    <div class="flex items-center">
+      <button type="button" class="btn btn-ghost btn-sm !px-2" disabled={!canUndo} onclick={undo} title="Undo (Ctrl+Z)" aria-label="Undo">
+        <Icon name="arrow-uturn-left" size={15} />
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm !px-2" disabled={!canRedo} onclick={redo} title="Redo (Ctrl+Shift+Z)" aria-label="Redo">
+        <Icon name="arrow-uturn-right" size={15} />
+      </button>
+    </div>
     <span class="text-xs {app.saveError ? 'text-red-400' : 'text-[var(--chrome-faint)]'}">
       {app.saveError || (app.saveState === 'saving' ? 'Saving…' : 'Saved')}
     </span>

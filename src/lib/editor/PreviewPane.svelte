@@ -19,7 +19,7 @@
     // touch reactive deps so the effect re-runs on edits
     void JSON.stringify(resume.data);
     void JSON.stringify(resume.settings);
-    const el = pageEl?.querySelector('#print-root') as HTMLElement | null;
+    const el = pageEl?.querySelector('#live-print-root') as HTMLElement | null;
     if (!el) return;
     requestAnimationFrame(() => {
       const h = el.scrollHeight;
@@ -43,7 +43,9 @@
 
   <div class="zoom-wrap mx-auto w-fit origin-top" style="transform: scale({app.zoom});" bind:this={pageEl}>
     <div class="relative">
-      <ResumePage data={resume.data} settings={resume.settings} guides editable />
+      <!-- Live, interactive preview: guides + click-to-edit. Its own id so
+           printing never targets this one directly (see below + print.ts). -->
+      <ResumePage data={resume.data} settings={resume.settings} guides editable rootId="live-print-root" />
       {#each breakOffsets as offset}
         <div
           class="no-print pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-rose-400/60"
@@ -55,3 +57,19 @@
     </div>
   </div>
 </div>
+
+<!-- Hidden clean copy, decoupled from the live editable/zoomed preview —
+     no guides, no contenteditable, no "always show in edit mode" fields.
+     This is what printResume() clones; keeps exported output identical
+     regardless of zoom level, edit mode, or in-progress guide state. -->
+<div class="print-source-wrap" aria-hidden="true">
+  <ResumePage data={resume.data} settings={resume.settings} />
+</div>
+
+<style>
+  .print-source-wrap {
+    position: fixed;
+    top: 0;
+    left: -99999px;
+  }
+</style>

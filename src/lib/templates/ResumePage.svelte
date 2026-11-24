@@ -9,6 +9,7 @@
     settings,
     guides = false,
     editable = false,
+    rootId = 'print-root',
   }: {
     data: ResumeData;
     settings: TemplateSettings;
@@ -16,6 +17,10 @@
     guides?: boolean;
     // Editor-only: click-to-edit text directly on the page.
     editable?: boolean;
+    // The live, editable preview and the hidden clean copy used for
+    // print/export both render a ResumePage — give them different ids so
+    // printResume() targets only the clean one (see print.ts).
+    rootId?: string;
   } = $props();
 
   // Created once so guide entry ids stay stable across re-renders.
@@ -46,7 +51,7 @@
   {@html pageStyle}
 </svelte:head>
 
-<div id="print-root" class="resume-page" style={styleVars}>
+<div id={rootId} class="resume-page" style={styleVars}>
   <Template {data} settings={resolved.settings} {guide} {editable} />
 </div>
 

@@ -42,20 +42,29 @@ body {
 }
 
 /* ───────────────────────── Print isolation ─────────────────────────
-   Only #print-root (the live ResumePage node) prints. visibility-based
-   so it works regardless of nesting depth. The zoom wrapper's transform
-   is stripped so the mm-sized page box prints at true size. */
+   print.ts clones the live #print-root into a plain #print-portal-root
+   div appended directly to <body> right before calling window.print().
+   That clone has no overflow/position ancestors to fight with, which is
+   what the visibility-hack version used to need — and why it rendered
+   fine on screen but blank in Chromium's actual paginated print pass.
+   `display: none` (not visibility) on every other body child means they
+   have zero layout footprint and can't clip or interfere. */
+#print-portal-root {
+  display: none;
+}
 @media print {
-  body { background: #fff; }
-  body * { visibility: hidden; }
-  #print-root, #print-root * { visibility: visible; }
-  .zoom-wrap { transform: none !important; }
-  #print-root {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    margin: 0 !important;
+  body {
+    background: #fff;
+  }
+  body > :not(#print-portal-root) {
+    display: none !important;
+  }
+  #print-portal-root {
+    display: block !important;
+  }
+  #print-portal-root #print-root {
     box-shadow: none !important;
+    margin: 0;
   }
   /* preview-only chrome inside the page (page-break guides, placeholders) */
   .no-print { display: none !important; }
@@ -139,6 +148,8 @@ textarea.input { resize: vertical; min-height: 64px; }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--chrome-muted); }
 .btn-ghost:hover { color: var(--chrome-text); background: var(--chrome-hover); border-color: transparent; }
 .btn-sm { padding: 3px 8px; font-size: 12px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:disabled:hover { background: inherit; border-color: inherit; }
 
 .card {
   background: var(--chrome-surface);
