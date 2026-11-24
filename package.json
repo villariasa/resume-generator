@@ -9,7 +9,7 @@
     "preview": "node node_modules/vite/bin/vite.js preview",
     "check": "node node_modules/svelte-check/bin/svelte-check --tsconfig ./tsconfig.app.json",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --dotfiles --nojekyll"
+    "deploy": "node node_modules/gh-pages/bin/gh-pages.js -d dist --dotfiles --nojekyll"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
