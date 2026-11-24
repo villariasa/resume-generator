@@ -59,6 +59,7 @@
   let resultText = $state('');
   let resultSkills = $state<string[]>([]);
   let resultBullets = $state<string[]>([]);
+  let controller: AbortController | null = null;
 
   async function generate() {
     error = '';
@@ -66,21 +67,28 @@
     resultSkills = [];
     resultBullets = [];
     busy = true;
+    controller = new AbortController();
+    const signal = controller.signal;
     try {
       if (mode === 'summary') {
-        resultText = await aiSummary(settings, about);
+        resultText = await aiSummary(settings, about, signal);
       } else if (mode === 'skills') {
-        resultSkills = await aiSkills(settings, about);
+        resultSkills = await aiSkills(settings, about, signal);
       } else {
         const entry = resume.data.work.find((w) => w.id === targetWorkId);
         const context = entry ? `${entry.role} at ${entry.company}` : 'this role';
-        resultBullets = await aiBullets(settings, context, bulletNotes);
+        resultBullets = await aiBullets(settings, context, bulletNotes, signal);
       }
     } catch (err) {
       error = err instanceof Error ? err.message : 'Something went wrong.';
     } finally {
       busy = false;
+      controller = null;
     }
+  }
+
+  function cancel() {
+    controller?.abort();
   }
 
   function insertSummary() {
@@ -196,9 +204,15 @@
         ></textarea>
       {/if}
 
-      <button type="button" class="btn btn-primary btn-sm justify-center" disabled={busy} onclick={generate}>
-        {#if busy}Generating…{:else}<Icon name="sparkles" size={14} /> Generate{/if}
-      </button>
+      <div class="flex gap-2">
+        <button type="button" class="btn btn-primary btn-sm flex-1 justify-center" disabled={busy} onclick={generate}>
+          {#if busy}Generating…{:else}<Icon name="sparkles" size={14} /> Generate{/if}
+        </button>
+        {#if busy}
+          <button type="button" class="btn btn-sm" onclick={cancel}>Cancel</button>
+        {/if}
+      </div>
+      {#if busy}<p class="text-xs text-[var(--chrome-muted)]">Waiting on {provider.name}… this gives up automatically after 30s if there's no response.</p>{/if}
 
       {#if error}<p class="text-xs text-red-400">{error}</p>{/if}
 

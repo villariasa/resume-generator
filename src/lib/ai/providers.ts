@@ -46,14 +46,32 @@ interface CallResult {
   text: string;
 }
 
+const TIMEOUT_MS = 30_000;
+
 /** Sends one user prompt (+ optional system prompt) to whichever provider is
  *  configured and returns the plain-text reply. Every request goes straight
  *  from this browser to the provider's API — the key never passes through
- *  any server of ours (we don't have one; this app has no backend). */
-export async function callAi(settings: AiSettings, system: string, user: string): Promise<CallResult> {
+ *  any server of ours (we don't have one; this app has no backend).
+ *
+ *  `signal`, if passed, lets the caller cancel early (a "Cancel" button).
+ *  A request is ALSO always hard-capped at TIMEOUT_MS: plain `fetch()` has no
+ *  built-in timeout, so a stalled network/proxy/provider would otherwise hang
+ *  forever with the UI stuck on "Generating…" and no way out. */
+export async function callAi(
+  settings: AiSettings,
+  system: string,
+  user: string,
+  signal?: AbortSignal,
+): Promise<CallResult> {
   if (!settings.apiKey && settings.provider !== 'custom') {
     throw new Error('No API key configured.');
   }
+
+  const timeoutController = new AbortController();
+  const timer = setTimeout(() => timeoutController.abort(), TIMEOUT_MS);
+  // Combine the caller's cancel signal (if any) with our timeout.
+  signal?.addEventListener('abort', () => timeoutController.abort());
+  const requestSignal = timeoutController.signal;
 
   let res: Response;
   try {
@@ -61,6 +79,7 @@ export async function callAi(settings: AiSettings, system: string, user: string)
       case 'anthropic':
         res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
+          signal: requestSignal,
           headers: {
             'content-type': 'application/json',
             'x-api-key': settings.apiKey,
@@ -79,6 +98,7 @@ export async function callAi(settings: AiSettings, system: string, user: string)
       case 'openai':
         res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
+          signal: requestSignal,
           headers: { 'content-type': 'application/json', authorization: `Bearer ${settings.apiKey}` },
           body: JSON.stringify({
             model: settings.model || PROVIDERS.openai.defaultModel,
@@ -96,6 +116,7 @@ export async function callAi(settings: AiSettings, system: string, user: string)
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(settings.apiKey)}`,
           {
             method: 'POST',
+            signal: requestSignal,
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify({
               systemInstruction: { parts: [{ text: system }] },
@@ -111,6 +132,7 @@ export async function callAi(settings: AiSettings, system: string, user: string)
         if (!base) throw new Error('Set an API base URL for the custom provider.');
         res = await fetch(`${base}/chat/completions`, {
           method: 'POST',
+          signal: requestSignal,
           headers: {
             'content-type': 'application/json',
             ...(settings.apiKey ? { authorization: `Bearer ${settings.apiKey}` } : {}),
@@ -127,10 +149,18 @@ export async function callAi(settings: AiSettings, system: string, user: string)
       }
     }
   } catch {
+    if (timeoutController.signal.aborted && !signal?.aborted) {
+      throw new Error(`Request timed out after ${TIMEOUT_MS / 1000}s with no response — the provider or network may be unreachable. Check your connection and try again.`);
+    }
+    if (signal?.aborted) {
+      throw new Error('Cancelled.');
+    }
     throw new Error(
       'Request failed before reaching the server — likely blocked by CORS or a network/ad-blocker issue. ' +
         (PROVIDERS[settings.provider]?.corsNote ?? ''),
     );
+  } finally {
+    clearTimeout(timer);
   }
 
   if (!res.ok) {
