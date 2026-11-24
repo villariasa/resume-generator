@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  --chrome-bg: #0f1115;
+  --chrome-surface: #171a21;
+  --chrome-border: #262b36;
+  --chrome-text: #e7eaf0;
+  --chrome-muted: #8b93a3;
+  --chrome-accent: #6366f1;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--chrome-bg);
+  color: var(--chrome-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ───────────────────────── Print isolation ─────────────────────────
+   Only #print-root (the live ResumePage node) prints. visibility-based
+   so it works regardless of nesting depth. The zoom wrapper's transform
+   is stripped so the mm-sized page box prints at true size. */
+@media print {
+  body { background: #fff; }
+  body * { visibility: hidden; }
+  #print-root, #print-root * { visibility: visible; }
+  .zoom-wrap { transform: none !important; }
+  #print-root {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  /* preview-only chrome inside the page (page-break guides, placeholders) */
+  .no-print { display: none !important; }
+  .ph { display: none !important; }
+}
+
+/* Placeholder (example) text shown in preview for empty fields — never printed/exported */
+.ph { color: #9ca3af; font-style: italic; }
+
+/* ───────────────────────── Editor form controls ───────────────────── */
+.label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chrome-muted);
+  margin-bottom: 4px;
+}
+
+.input {
+  width: 100%;
+  background: #0c0e12;
+  border: 1px solid var(--chrome-border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--chrome-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: var(--chrome-accent); }
+.input::placeholder { color: #525a68; }
+textarea.input { resize: vertical; min-height: 64px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--chrome-border);
+  background: var(--chrome-surface);
+  color: var(--chrome-text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { background: #1e222b; border-color: #333a48; }
+.btn-primary { background: var(--chrome-accent); border-color: var(--chrome-accent); color: #fff; }
+.btn-primary:hover { background: #4f52e0; border-color: #4f52e0; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--chrome-muted); }
+.btn-ghost:hover { color: var(--chrome-text); background: #1e222b; border-color: transparent; }
+.btn-sm { padding: 3px 8px; font-size: 12px; }
+
+.card {
+  background: var(--chrome-surface);
+  border: 1px solid var(--chrome-border);
+  border-radius: 10px;
+}
+
+/* Thin scrollbars for the editor chrome */
+.slim-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.slim-scroll::-webkit-scrollbar-thumb { background: #2d3340; border-radius: 4px; }
+.slim-scroll::-webkit-scrollbar-track { background: transparent; }

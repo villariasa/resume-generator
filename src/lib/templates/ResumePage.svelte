@@ -1,0 +1,140 @@
+<script lang="ts">
+  import type { ResumeData, TemplateSettings } from '../types';
+  import { DENSITY_FACTOR, DENSITY_FONT_SIZE, FONT_PAIRINGS, PAGE_DIMENSIONS } from './theme';
+  import { resolveTemplate } from './registry';
+
+  let { data, settings }: { data: ResumeData; settings: TemplateSettings } = $props();
+
+  const resolved = $derived(resolveTemplate(settings));
+  const dims = $derived(PAGE_DIMENSIONS[resolved.settings.pageSize]);
+  const fonts = $derived(FONT_PAIRINGS[resolved.settings.fontPairing]);
+
+  const styleVars = $derived(
+    [
+      `--accent: ${resolved.settings.accentColor}`,
+      `--font-heading: ${fonts.heading}`,
+      `--font-body: ${fonts.body}`,
+      `--space: ${DENSITY_FACTOR[resolved.settings.density]}`,
+      `--fs-base: ${DENSITY_FONT_SIZE[resolved.settings.density]}`,
+      `width: ${dims.width}`,
+      `min-height: ${dims.height}`,
+    ].join('; '),
+  );
+
+  const pageStyle = $derived(`<${'style'}>@page { size: ${dims.css}; margin: 0; }</${'style'}>`);
+  const Template = $derived(resolved.def.component);
+</script>
+
+<svelte:head>
+  {@html pageStyle}
+</svelte:head>
+
+<div id="print-root" class="resume-page" style={styleVars}>
+  <Template {data} settings={resolved.settings} />
+</div>
+
+<style>
+  .resume-page {
+    background: #fff;
+    color: #1a1d23;
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    line-height: 1.45;
+    box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.55);
+    box-sizing: border-box;
+  }
+
+  /* ── Baseline resume typography every template inherits ───────────── */
+  .resume-page :global(.sec) {
+    margin-top: calc(14px * var(--space));
+    break-inside: auto;
+  }
+  .resume-page :global(.sec-title) {
+    font-family: var(--font-heading);
+    font-size: calc(var(--fs-base) * 1.05);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 0 0 calc(6px * var(--space));
+    break-after: avoid;
+  }
+  .resume-page :global(.entry) {
+    margin-bottom: calc(10px * var(--space));
+    break-inside: avoid;
+  }
+  .resume-page :global(.entry:last-child) {
+    margin-bottom: 0;
+  }
+  .resume-page :global(.entry-head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .resume-page :global(.entry-role) {
+    font-weight: 600;
+  }
+  .resume-page :global(.entry-org) {
+    font-weight: 500;
+  }
+  .resume-page :global(.entry-meta) {
+    font-size: calc(var(--fs-base) * 0.88);
+    color: #5b6472;
+    display: flex;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .resume-page :global(.entry-tech) {
+    color: #5b6472;
+    font-size: calc(var(--fs-base) * 0.9);
+  }
+  .resume-page :global(.entry-body) {
+    margin: calc(3px * var(--space)) 0 0;
+  }
+  .resume-page :global(.bullets) {
+    margin: calc(4px * var(--space)) 0 0;
+    padding-left: 1.15em;
+  }
+  .resume-page :global(.bullets li) {
+    margin-bottom: calc(2.5px * var(--space));
+  }
+  .resume-page :global(.contact-line) {
+    margin: 0;
+    font-size: calc(var(--fs-base) * 0.92);
+  }
+  .resume-page :global(.contact-sep) {
+    color: var(--accent);
+    opacity: 0.7;
+    margin: 0 2px;
+  }
+  .resume-page :global(.skill-groups) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(4px * var(--space));
+  }
+  .resume-page :global(.skill-label) {
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .resume-page :global(.skill-label)::after {
+    content: ':';
+  }
+  .resume-page :global(.cert-list) {
+    margin: 0;
+    padding-left: 1.15em;
+  }
+  .resume-page :global(.cert-list li) {
+    margin-bottom: calc(2.5px * var(--space));
+  }
+  .resume-page :global(.lang-list) {
+    margin: 0;
+  }
+  .resume-page :global(.summary) {
+    margin: 0;
+  }
+  .resume-page :global(.entry-dates) {
+    font-variant-numeric: tabular-nums;
+  }
+</style>
