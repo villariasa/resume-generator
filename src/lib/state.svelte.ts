@@ -9,7 +9,18 @@ interface SharedPayload {
   settings: TemplateSettings;
 }
 
+export type Theme = 'light' | 'dark';
+
+function initialTheme(): Theme {
+  try {
+    return localStorage.getItem('rg:theme') === 'dark' ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
 export const app = $state({
+  theme: initialTheme() as Theme,
   view: 'gallery' as View,
   current: null as SavedResume | null,
   shared: null as SharedPayload | null,
@@ -19,6 +30,15 @@ export const app = $state({
   // mobile: which pane is visible under lg breakpoint
   mobileTab: 'form' as 'form' | 'preview',
 });
+
+export function toggleTheme(): void {
+  app.theme = app.theme === 'dark' ? 'light' : 'dark';
+  try {
+    localStorage.setItem('rg:theme', app.theme);
+  } catch {
+    /* private mode — theme just won't persist */
+  }
+}
 
 export function newResume(templateId: string, data?: ResumeData, settings?: TemplateSettings, name?: string): SavedResume {
   const now = new Date().toISOString();

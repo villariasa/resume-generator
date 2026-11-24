@@ -79,7 +79,7 @@
         <button
           type="button"
           aria-label="Accent {color}"
-          class="h-6 w-6 rounded-full border-2 {resume.settings.accentColor === color ? 'border-white' : 'border-transparent'}"
+          class="h-6 w-6 rounded-full border-2 {resume.settings.accentColor === color ? 'border-[var(--chrome-text)]' : 'border-transparent'}"
           style="background: {color};"
           onclick={() => (resume.settings.accentColor = color)}
         ></button>
@@ -87,7 +87,7 @@
       <input
         type="color"
         bind:value={resume.settings.accentColor}
-        class="h-6 w-8 cursor-pointer rounded border border-[#262b36] bg-transparent"
+        class="h-6 w-8 cursor-pointer rounded border border-[var(--chrome-border)] bg-transparent"
         aria-label="Custom accent color"
       />
     </div>
@@ -126,9 +126,9 @@
       Show photo on the resume
     </label>
     {#if resume.settings.showPhoto && !resume.data.basics.photoDataUrl}
-      <p class="mt-1 text-xs text-[#8b93a3]">No photo uploaded yet — add one under Basics.</p>
+      <p class="mt-1 text-xs text-[var(--chrome-muted)]">No photo uploaded yet — add one under Basics.</p>
     {:else if !resume.settings.showPhoto}
-      <p class="mt-1 text-xs text-[#8b93a3]">Tip: photo-free is the ATS-safe convention for US applications.</p>
+      <p class="mt-1 text-xs text-[var(--chrome-muted)]">Tip: photo-free is the ATS-safe convention for US applications.</p>
     {/if}
   </div>
 
@@ -147,12 +147,12 @@
     <div class="flex flex-col gap-1">
       {#each orderKeys as key, i (key)}
         {@const hidden = resume.settings.hiddenSections.includes(key)}
-        <div class="flex items-center gap-2 rounded-md border border-[#262b36] bg-[#12151b] px-2 py-1.5">
+        <div class="flex items-center gap-2 rounded-md border border-[var(--chrome-border)] bg-[var(--chrome-surface2)] px-2 py-1.5">
           <div class="flex flex-col">
-            <button type="button" class="text-[10px] leading-none text-[#525a68] hover:text-white" aria-label="Move up" onclick={() => move(resume.settings.sectionOrder, i, i - 1)}>▲</button>
-            <button type="button" class="text-[10px] leading-none text-[#525a68] hover:text-white" aria-label="Move down" onclick={() => move(resume.settings.sectionOrder, i, i + 1)}>▼</button>
+            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move up" onclick={() => move(resume.settings.sectionOrder, i, i - 1)}>▲</button>
+            <button type="button" class="text-[10px] leading-none text-[var(--chrome-faint)] hover:text-[var(--chrome-text)]" aria-label="Move down" onclick={() => move(resume.settings.sectionOrder, i, i + 1)}>▼</button>
           </div>
-          <span class="flex-1 text-xs {hidden ? 'line-through text-[#525a68]' : ''}">{sectionLabel(key, resume.data)}</span>
+          <span class="flex-1 text-xs {hidden ? 'line-through text-[var(--chrome-faint)]' : ''}">{sectionLabel(key, resume.data)}</span>
           {#if def.supportsColumns && resume.settings.columns === 2}
             <button
               type="button"
@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <div class="border-t border-[#262b36] pt-4">
+  <div class="border-t border-[var(--chrome-border)] pt-4">
     <button type="button" class="btn w-full justify-center" onclick={saveAsTemplate}>★ Save current look as my template</button>
     {#if savedTplMsg}<p class="mt-2 text-xs text-emerald-400">{savedTplMsg}</p>{/if}
   </div>

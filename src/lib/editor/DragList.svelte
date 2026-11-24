@@ -66,7 +66,7 @@
       <div class="flex flex-col items-center pt-2 shrink-0">
         <button
           type="button"
-          class="cursor-grab touch-none text-[#525a68] hover:text-[#8b93a3] px-0.5"
+          class="cursor-grab touch-none text-[var(--chrome-faint)] hover:text-[var(--chrome-muted)] px-0.5"
           aria-label="Drag to reorder"
           onpointerdown={(e) => startDrag(e, i)}
           onkeydown={(e) => {

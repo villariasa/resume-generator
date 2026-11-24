@@ -12,6 +12,7 @@
   import { exampleResume } from '../example';
   import { importJsonFile } from '../export/json';
   import TemplateCard from './TemplateCard.svelte';
+  import ThemeToggle from '../ui/ThemeToggle.svelte';
 
   const previewData = exampleResume();
 
@@ -84,11 +85,12 @@
     <header class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Resume Generator</h1>
-        <p class="mt-1 text-sm text-[#8b93a3]">
+        <p class="mt-1 text-sm text-[var(--chrome-muted)]">
           Pick a template, fill in your story, export a print-perfect PDF. Everything stays in your browser.
         </p>
       </div>
       <div class="flex items-center gap-2">
+        <ThemeToggle />
         <label class="btn btn-sm cursor-pointer">
           ⬆ Import JSON
           <input type="file" accept=".json,application/json" class="hidden" onchange={onImport} />
@@ -108,7 +110,7 @@
             <div class="card flex items-center gap-3 px-4 py-2.5 hover:border-indigo-500/50 transition-colors">
               <button type="button" class="flex-1 text-left min-w-0 cursor-pointer" onclick={() => open(entry.id)}>
                 <span class="text-sm font-medium">{entry.name}</span>
-                <span class="ml-3 text-xs text-[#525a68]">{entry.templateId.startsWith('custom:') ? 'Custom' : (getBuiltin(entry.templateId)?.name ?? entry.templateId)} · updated {fmtDate(entry.updatedAt)}</span>
+                <span class="ml-3 text-xs text-[var(--chrome-faint)]">{entry.templateId.startsWith('custom:') ? 'Custom' : (getBuiltin(entry.templateId)?.name ?? entry.templateId)} · updated {fmtDate(entry.updatedAt)}</span>
               </button>
               <button
                 type="button"
@@ -168,7 +170,7 @@
       </div>
     </section>
 
-    <footer class="mt-14 border-t border-[#262b36] pt-5 text-xs text-[#525a68]">
+    <footer class="mt-14 border-t border-[var(--chrome-border)] pt-5 text-xs text-[var(--chrome-faint)]">
       100% client-side — your resume never leaves this browser. Autosaves locally; use Export → JSON for a backup file.
     </footer>
   </div>

@@ -34,7 +34,7 @@
   );
 </script>
 
-<div class="relative h-full overflow-auto slim-scroll bg-[#0c0e12] p-6">
+<div class="relative h-full overflow-auto slim-scroll bg-[var(--chrome-inset)] p-6">
   {#if overflows}
     <div class="no-print sticky top-0 z-20 mb-3 mx-auto w-fit rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-300">
       Content flows onto {pageCount} pages — tighten density or hide a section if you want one page.

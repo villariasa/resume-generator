@@ -16,7 +16,7 @@
 </script>
 
 {#each data.customSections as section, si (section.id)}
-  <div class="card !bg-[#12151b] p-3 mb-3">
+  <div class="card !bg-[var(--chrome-surface2)] p-3 mb-3">
     <div class="flex gap-2 items-center">
       <input class="input font-semibold" bind:value={section.title} placeholder="Section title — Awards, Volunteering…" aria-label="Section title" />
       <button type="button" class="btn btn-ghost btn-sm !text-red-400/70 hover:!text-red-400" onclick={() => data.customSections.splice(si, 1)}>
@@ -26,7 +26,7 @@
     <div class="mt-2">
       <DragList items={section.entries} onreorder={(f, t) => move(section.entries, f, t)}>
         {#snippet children(entry, ei)}
-          <div class="border border-[#262b36] rounded-lg p-2.5 mb-2">
+          <div class="border border-[var(--chrome-border)] rounded-lg p-2.5 mb-2">
             <div class="grid grid-cols-2 gap-2">
               <input class="input" bind:value={entry.heading} placeholder="Heading" aria-label="Entry heading" />
               <input class="input" bind:value={entry.sub} placeholder="Subheading / date" aria-label="Entry subheading" />

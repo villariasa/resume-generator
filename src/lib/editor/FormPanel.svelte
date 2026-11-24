@@ -59,8 +59,8 @@
 
 <div class="flex flex-col gap-3">
   {#if isEmpty}
-    <div class="card p-4 border-dashed !border-[#3a4150] text-center">
-      <p class="text-sm text-[#8b93a3]">Starting from scratch?</p>
+    <div class="card p-4 border-dashed !border-[var(--chrome-border-strong)] text-center">
+      <p class="text-sm text-[var(--chrome-muted)]">Starting from scratch?</p>
       <button type="button" class="btn btn-primary btn-sm mt-2" onclick={loadExample}>Load example resume</button>
     </div>
   {/if}

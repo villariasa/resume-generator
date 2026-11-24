@@ -17,7 +17,7 @@
 
 <DragList items={data.work} onreorder={(f, t) => move(data.work, f, t)}>
   {#snippet children(entry, i)}
-    <div class="card !bg-[#12151b] p-3 mb-3">
+    <div class="card !bg-[var(--chrome-surface2)] p-3 mb-3">
       <div class="grid grid-cols-2 gap-2">
         <input class="input" bind:value={entry.role} placeholder="Role — e.g. Full-Stack Developer" aria-label="Role" />
         <input class="input" bind:value={entry.company} placeholder="Company" aria-label="Company" />
@@ -27,7 +27,7 @@
           <input class="input" bind:value={entry.endDate} placeholder="2025" disabled={entry.current} aria-label="End date" />
         </div>
       </div>
-      <label class="flex items-center gap-2 mt-2 text-xs text-[#8b93a3]">
+      <label class="flex items-center gap-2 mt-2 text-xs text-[var(--chrome-muted)]">
         <input type="checkbox" bind:checked={entry.current} /> Current position
       </label>
       <div class="mt-2">

@@ -1,11 +1,32 @@
 @import "tailwindcss";
 
+/* Light theme (default) */
 :root {
+  --chrome-bg: #f3f4f7;
+  --chrome-surface: #ffffff;
+  --chrome-surface2: #f6f7f9;
+  --chrome-inset: #eef0f3;
+  --chrome-hover: #eceef2;
+  --chrome-border: #dcdfe5;
+  --chrome-border-strong: #c3c9d2;
+  --chrome-text: #181b21;
+  --chrome-muted: #5b6472;
+  --chrome-faint: #8a93a2;
+  --chrome-accent: #6366f1;
+}
+
+/* Dark theme */
+html.dark {
   --chrome-bg: #0f1115;
   --chrome-surface: #171a21;
+  --chrome-surface2: #12151b;
+  --chrome-inset: #0c0e12;
+  --chrome-hover: #1e222b;
   --chrome-border: #262b36;
+  --chrome-border-strong: #333a48;
   --chrome-text: #e7eaf0;
   --chrome-muted: #8b93a3;
+  --chrome-faint: #525a68;
   --chrome-accent: #6366f1;
 }
 
@@ -56,7 +77,7 @@ body {
 
 .input {
   width: 100%;
-  background: #0c0e12;
+  background: var(--chrome-inset);
   border: 1px solid var(--chrome-border);
   border-radius: 6px;
   padding: 7px 10px;
@@ -66,7 +87,7 @@ body {
   transition: border-color 0.15s;
 }
 .input:focus { border-color: var(--chrome-accent); }
-.input::placeholder { color: #525a68; }
+.input::placeholder { color: var(--chrome-faint); }
 textarea.input { resize: vertical; min-height: 64px; }
 
 .btn {
@@ -83,11 +104,11 @@ textarea.input { resize: vertical; min-height: 64px; }
   transition: background 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
-.btn:hover { background: #1e222b; border-color: #333a48; }
+.btn:hover { background: var(--chrome-hover); border-color: var(--chrome-border-strong); }
 .btn-primary { background: var(--chrome-accent); border-color: var(--chrome-accent); color: #fff; }
-.btn-primary:hover { background: #4f52e0; border-color: #4f52e0; }
+.btn-primary:hover { background: #4f52e0; border-color: #4f52e0; color: #fff; }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--chrome-muted); }
-.btn-ghost:hover { color: var(--chrome-text); background: #1e222b; border-color: transparent; }
+.btn-ghost:hover { color: var(--chrome-text); background: var(--chrome-hover); border-color: transparent; }
 .btn-sm { padding: 3px 8px; font-size: 12px; }
 
 .card {
@@ -98,5 +119,5 @@ textarea.input { resize: vertical; min-height: 64px; }
 
 /* Thin scrollbars for the editor chrome */
 .slim-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.slim-scroll::-webkit-scrollbar-thumb { background: #2d3340; border-radius: 4px; }
+.slim-scroll::-webkit-scrollbar-thumb { background: var(--chrome-border-strong); border-radius: 4px; }
 .slim-scroll::-webkit-scrollbar-track { background: transparent; }

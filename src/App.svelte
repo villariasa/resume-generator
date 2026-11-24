@@ -6,6 +6,11 @@
   import EditorView from './lib/editor/EditorView.svelte';
   import ViewerView from './lib/viewer/ViewerView.svelte';
 
+  // Theme class on <html> — light is the default, dark is opt-in.
+  $effect(() => {
+    document.documentElement.classList.toggle('dark', app.theme === 'dark');
+  });
+
   // Boot: share fragment → viewer; last-opened resume → editor; else gallery.
   const shared = decodeShareFragment(location.hash);
   if (shared) {

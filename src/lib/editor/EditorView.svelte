@@ -7,6 +7,7 @@
   import FormPanel from './FormPanel.svelte';
   import PreviewPane from './PreviewPane.svelte';
   import CustomizerPanel from './CustomizerPanel.svelte';
+  import ThemeToggle from '../ui/ThemeToggle.svelte';
 
   const resume = $derived(app.current!);
 
@@ -55,26 +56,28 @@
 
 <div class="flex h-dvh flex-col">
   <!-- Toolbar -->
-  <header class="no-print flex items-center gap-3 border-b border-[#262b36] bg-[#12151b] px-4 py-2.5">
+  <header class="no-print flex items-center gap-3 border-b border-[var(--chrome-border)] bg-[var(--chrome-surface2)] px-4 py-2.5">
     <button type="button" class="btn btn-ghost btn-sm" onclick={backToGallery}>← Gallery</button>
     <input
-      class="input !w-56 !bg-transparent !border-transparent hover:!border-[#262b36] focus:!border-indigo-500 font-semibold"
+      class="input !w-56 !bg-transparent !border-transparent hover:!border-[var(--chrome-border)] focus:!border-indigo-500 font-semibold"
       bind:value={resume.name}
       aria-label="Resume name"
     />
-    <span class="text-xs text-[#525a68]">{app.saveState === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
+    <span class="text-xs text-[var(--chrome-faint)]">{app.saveState === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
 
     <div class="ml-auto flex items-center gap-2">
       <!-- mobile tabs -->
-      <div class="flex lg:hidden rounded-md border border-[#262b36] overflow-hidden">
+      <div class="flex lg:hidden rounded-md border border-[var(--chrome-border)] overflow-hidden">
         <button type="button" class="px-3 py-1 text-xs {app.mobileTab === 'form' ? 'bg-indigo-500 text-white' : ''}" onclick={() => (app.mobileTab = 'form')}>Edit</button>
         <button type="button" class="px-3 py-1 text-xs {app.mobileTab === 'preview' ? 'bg-indigo-500 text-white' : ''}" onclick={() => (app.mobileTab = 'preview')}>Preview</button>
       </div>
 
-      <label class="hidden sm:flex items-center gap-1.5 text-xs text-[#8b93a3]">
+      <label class="hidden sm:flex items-center gap-1.5 text-xs text-[var(--chrome-muted)]">
         Zoom
         <input type="range" min="0.4" max="1.5" step="0.05" bind:value={app.zoom} class="w-24 accent-indigo-500" />
       </label>
+
+      <ThemeToggle />
 
       <button type="button" class="btn btn-sm {app.customizerOpen ? '!border-indigo-500' : ''}" onclick={() => (app.customizerOpen = !app.customizerOpen)}>
         🎨 Design
@@ -101,7 +104,7 @@
 
   <!-- Body -->
   <div class="flex min-h-0 flex-1">
-    <aside class="no-print w-full lg:w-[440px] shrink-0 overflow-y-auto slim-scroll border-r border-[#262b36] bg-[#0f1115] p-4 {app.mobileTab === 'form' ? '' : 'hidden lg:block'}">
+    <aside class="no-print w-full lg:w-[440px] shrink-0 overflow-y-auto slim-scroll border-r border-[var(--chrome-border)] bg-[var(--chrome-bg)] p-4 {app.mobileTab === 'form' ? '' : 'hidden lg:block'}">
       <FormPanel {resume} />
     </aside>
 
@@ -110,7 +113,7 @@
     </main>
 
     {#if app.customizerOpen}
-      <aside class="no-print w-[300px] shrink-0 overflow-y-auto slim-scroll border-l border-[#262b36] bg-[#0f1115]">
+      <aside class="no-print w-[300px] shrink-0 overflow-y-auto slim-scroll border-l border-[var(--chrome-border)] bg-[var(--chrome-bg)]">
         <CustomizerPanel {resume} />
       </aside>
     {/if}
@@ -124,7 +127,7 @@
         <h2 class="text-sm font-semibold">ATS plain-text version</h2>
         <button type="button" class="btn btn-ghost btn-sm" onclick={() => (atsOpen = false)}>✕</button>
       </div>
-      <p class="mt-1 text-xs text-[#8b93a3]">Paste this into application forms that mangle formatting.</p>
+      <p class="mt-1 text-xs text-[var(--chrome-muted)]">Paste this into application forms that mangle formatting.</p>
       <textarea class="input mt-3 h-80 font-mono text-xs" readonly value={atsText}></textarea>
       <div class="mt-3 flex justify-end gap-2">
         <button type="button" class="btn btn-sm" onclick={() => navigator.clipboard.writeText(atsText)}>Copy to clipboard</button>

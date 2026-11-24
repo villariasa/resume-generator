@@ -12,7 +12,7 @@
 
 <DragList items={data.education} onreorder={(f, t) => move(data.education, f, t)}>
   {#snippet children(entry, i)}
-    <div class="card !bg-[#12151b] p-3 mb-3">
+    <div class="card !bg-[var(--chrome-surface2)] p-3 mb-3">
       <div class="grid grid-cols-2 gap-2">
         <input class="input" bind:value={entry.degree} placeholder="Degree — B.S. Information Systems" aria-label="Degree" />
         <input class="input" bind:value={entry.institution} placeholder="Institution" aria-label="Institution" />
