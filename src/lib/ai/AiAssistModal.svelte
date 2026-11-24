@@ -10,7 +10,20 @@
 
   let { open = $bindable(false), resume }: { open?: boolean; resume: SavedResume } = $props();
 
-  let settings = $state<AiSettings>(getAiSettings() ?? { provider: 'anthropic', apiKey: '', model: PROVIDERS.anthropic.defaultModel });
+  // Providers periodically retire model ids (e.g. Google removed
+  // gemini-2.0-flash). If a saved setting points at a model the provider's
+  // current list no longer recognizes, silently fall forward to today's
+  // default instead of letting the same request fail again.
+  function withFreshModel(s: AiSettings): AiSettings {
+    const def = PROVIDERS[s.provider];
+    if (def.needsBaseUrl || def.models.includes(s.model)) return s;
+    return { ...s, model: def.defaultModel };
+  }
+
+  const loaded = getAiSettings();
+  const migrated = withFreshModel(loaded ?? { provider: 'anthropic', apiKey: '', model: PROVIDERS.anthropic.defaultModel });
+  if (loaded && migrated.model !== loaded.model) saveAiSettings(migrated);
+  let settings = $state<AiSettings>(migrated);
   let showKey = $state(false);
   let configuring = $state(!getAiSettings());
 
