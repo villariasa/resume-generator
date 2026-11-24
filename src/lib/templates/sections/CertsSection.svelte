@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { CertEntry } from '../../types';
   import SectionHeading from './SectionHeading.svelte';
+  import EditableText from '../EditableText.svelte';
 
-  let { entries, title = 'Certifications' }: { entries: CertEntry[]; title?: string } = $props();
+  let { entries, title = 'Certifications', editable = false }: { entries: CertEntry[]; title?: string; editable?: boolean } = $props();
 </script>
 
 <section class="sec">
@@ -10,9 +11,14 @@
   <ul class="cert-list">
     {#each entries as entry (entry.id)}
       <li>
-        <span class="entry-role">{entry.name}</span>
-        {#if entry.issuer}<span class="entry-at"> · </span><span class="entry-org">{entry.issuer}</span>{/if}
-        {#if entry.date}<span class="entry-dates"> ({entry.date})</span>{/if}
+        <EditableText as="span" class="entry-role" value={entry.name} onchange={(v) => (entry.name = v)} {editable} placeholder="Certification name" />
+        {#if entry.issuer || editable}
+          <span class="entry-at"> · </span>
+          <EditableText as="span" class="entry-org" value={entry.issuer} onchange={(v) => (entry.issuer = v)} {editable} placeholder="Issuer" />
+        {/if}
+        {#if entry.date || editable}
+          <span class="entry-dates"> (<EditableText as="span" value={entry.date} onchange={(v) => (entry.date = v)} {editable} placeholder="Year" />)</span>
+        {/if}
       </li>
     {/each}
   </ul>

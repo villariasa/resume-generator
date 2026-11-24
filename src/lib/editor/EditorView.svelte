@@ -9,6 +9,8 @@
   import CustomizerPanel from './CustomizerPanel.svelte';
   import ThemeToggle from '../ui/ThemeToggle.svelte';
   import Icon from '../ui/Icon.svelte';
+  import AiAssistModal from '../ai/AiAssistModal.svelte';
+  import Dialog from '../ui/Dialog.svelte';
 
   const resume = $derived(app.current!);
 
@@ -20,6 +22,7 @@
     scheduleSave();
   });
 
+  let aiOpen = $state(false);
   let exportOpen = $state(false);
   let atsOpen = $state(false);
   let atsText = $state('');
@@ -34,12 +37,13 @@
   async function copyShareLink() {
     exportOpen = false;
     flushSave();
+    // The photo is never included in share links (see share.ts) — keeps the
+    // link short and doesn't hand out a personal photo via a URL.
     const url = encodeShareUrl($state.snapshot(resume.data), $state.snapshot(resume.settings), resume.name);
-    if (url.length > 32_000) {
-      shareMsg = 'Link is very large (embedded photo?) — consider removing the photo before sharing.';
-    }
     await navigator.clipboard.writeText(url);
-    shareMsg = shareMsg || 'Share link copied to clipboard.';
+    shareMsg = resume.data.basics.photoDataUrl
+      ? 'Link copied — photo excluded from share links.'
+      : 'Share link copied to clipboard.';
     setTimeout(() => (shareMsg = ''), 4000);
   }
 
@@ -64,7 +68,9 @@
       bind:value={resume.name}
       aria-label="Resume name"
     />
-    <span class="text-xs text-[var(--chrome-faint)]">{app.saveState === 'saving' ? 'Saving…' : 'Saved'}</span>
+    <span class="text-xs {app.saveError ? 'text-red-400' : 'text-[var(--chrome-faint)]'}">
+      {app.saveError || (app.saveState === 'saving' ? 'Saving…' : 'Saved')}
+    </span>
 
     <div class="ml-auto flex items-center gap-2">
       <!-- mobile tabs -->
@@ -79,6 +85,10 @@
       </label>
 
       <ThemeToggle />
+
+      <button type="button" class="btn btn-sm" onclick={() => (aiOpen = true)}>
+        <Icon name="sparkles" size={14} /> AI Assist
+      </button>
 
       <button type="button" class="btn btn-sm {app.customizerOpen ? '!border-indigo-500' : ''}" onclick={() => (app.customizerOpen = !app.customizerOpen)}>
         <Icon name="swatch" size={14} /> Design
@@ -121,19 +131,12 @@
   </div>
 </div>
 
-{#if atsOpen}
-  <div class="no-print fixed inset-0 z-[100] grid place-items-center bg-black/60 p-6" role="dialog" aria-modal="true">
-    <div class="card w-full max-w-2xl p-5">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-semibold">ATS plain-text version</h2>
-        <button type="button" class="btn btn-ghost btn-sm" onclick={() => (atsOpen = false)} aria-label="Close"><Icon name="x-mark" size={14} /></button>
-      </div>
-      <p class="mt-1 text-xs text-[var(--chrome-muted)]">Paste this into application forms that mangle formatting.</p>
-      <textarea class="input mt-3 h-80 font-mono text-xs" readonly value={atsText}></textarea>
-      <div class="mt-3 flex justify-end gap-2">
-        <button type="button" class="btn btn-sm" onclick={() => navigator.clipboard.writeText(atsText)}>Copy to clipboard</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick={() => (atsOpen = false)}>Done</button>
-      </div>
-    </div>
-  </div>
-{/if}
+<Dialog bind:open={atsOpen} title="ATS plain-text version" description="Paste this into application forms that mangle formatting.">
+  <textarea class="input h-80 font-mono text-xs" readonly value={atsText}></textarea>
+  {#snippet footer()}
+    <button type="button" class="btn btn-sm" onclick={() => navigator.clipboard.writeText(atsText)}>Copy to clipboard</button>
+    <button type="button" class="btn btn-primary btn-sm" onclick={() => (atsOpen = false)}>Done</button>
+  {/snippet}
+</Dialog>
+
+<AiAssistModal bind:open={aiOpen} {resume} />

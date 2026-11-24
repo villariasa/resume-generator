@@ -2,23 +2,15 @@
   import type { ResumeData, TemplateSettings } from '../types';
   import { visibleSections } from './format';
   import SectionRenderer from './SectionRenderer.svelte';
+  import ContactLine from './sections/ContactLine.svelte';
+  import EditableText from './EditableText.svelte';
 
-  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  let { data, settings, guide = null, editable = false }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null; editable?: boolean } = $props();
 
   const all = $derived(visibleSections(data, settings, !!guide));
   const twoCol = $derived(settings.columns === 2);
   const sidebar = $derived(twoCol ? all.filter((k) => settings.sidebarSections.includes(k)) : []);
   const main = $derived(twoCol ? all.filter((k) => !settings.sidebarSections.includes(k)) : all);
-
-  const contactParts = $derived(
-    [data.basics.email, data.basics.phone, data.basics.location, data.basics.website, ...data.basics.links.map((l) => l.url || l.label)]
-      .filter((p) => p && p.trim()),
-  );
-  const contactGuide = $derived(
-    contactParts.length === 0 && guide
-      ? [guide.basics.email, guide.basics.phone, guide.basics.location, guide.basics.website].filter(Boolean)
-      : null,
-  );
 </script>
 
 <div class="tpl" class:two-col={twoCol}>
@@ -27,32 +19,32 @@
       {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
-      <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
-      {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
+      <EditableText as="h1" class="name" value={data.basics.fullName} onchange={(v) => (data.basics.fullName = v)} {editable} placeholder="Your Name" />
+      {#if data.basics.headline || guide || editable}
+        <EditableText as="p" class="headline" value={data.basics.headline} onchange={(v) => (data.basics.headline = v)} {editable} placeholder={guide?.basics.headline ?? 'Headline'} />
+      {/if}
 
-      <div class="side-contact" class:ph={!!contactGuide}>
-        {#each contactGuide ?? contactParts as part}
-          <p class="side-contact-line">{part}</p>
-        {/each}
+      <div class="side-contact">
+        <ContactLine basics={data.basics} guide={guide?.basics} {editable} separator=" " />
       </div>
 
-      <SectionRenderer {data} sections={sidebar} {guide} />
+      <SectionRenderer {data} sections={sidebar} {guide} {editable} />
     </aside>
     <div class="main">
-      <SectionRenderer {data} sections={main} {guide} />
+      <SectionRenderer {data} sections={main} {guide} {editable} />
     </div>
   {:else}
     <div class="single">
       <header class="single-head">
-        <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
-        {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
-        <div class="side-contact single-contact" class:ph={!!contactGuide}>
-          {#each contactGuide ?? contactParts as part}
-            <span class="side-contact-line">{part}</span>
-          {/each}
+        <EditableText as="h1" class="name" value={data.basics.fullName} onchange={(v) => (data.basics.fullName = v)} {editable} placeholder="Your Name" />
+        {#if data.basics.headline || guide || editable}
+          <EditableText as="p" class="headline" value={data.basics.headline} onchange={(v) => (data.basics.headline = v)} {editable} placeholder={guide?.basics.headline ?? 'Headline'} />
+        {/if}
+        <div class="single-contact">
+          <ContactLine basics={data.basics} guide={guide?.basics} {editable} separator="   " />
         </div>
       </header>
-      <SectionRenderer {data} sections={main} {guide} />
+      <SectionRenderer {data} sections={main} {guide} {editable} />
     </div>
   {/if}
 </div>
@@ -86,14 +78,14 @@
     margin-bottom: calc(10px * var(--space));
     border: 2px solid var(--accent);
   }
-  .name {
+  .tpl :global(.name) {
     font-family: var(--font-heading);
     font-size: calc(var(--fs-base) * 2);
     font-weight: 700;
     line-height: 1.1;
     margin: 0;
   }
-  .headline {
+  .tpl :global(.headline) {
     margin: calc(4px * var(--space)) 0 0;
     color: var(--accent);
     font-weight: 600;
@@ -104,14 +96,22 @@
     font-size: calc(var(--fs-base) * 0.88);
     color: #434a56;
   }
-  .side-contact-line {
-    margin: 0 0 3px;
-    overflow-wrap: anywhere;
+  .side-contact :global(.contact-line) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
   }
-  .single-contact {
+  .side-contact :global(.contact-sep) {
+    display: none;
+  }
+  .single-contact :global(.contact-line) {
     display: flex;
     flex-wrap: wrap;
     gap: 4px 14px;
+  }
+  .single-contact :global(.contact-sep) {
+    display: none;
   }
   .side :global(.sec-title) {
     border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, #d8dce3);

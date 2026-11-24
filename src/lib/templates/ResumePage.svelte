@@ -8,11 +8,14 @@
     data,
     settings,
     guides = false,
+    editable = false,
   }: {
     data: ResumeData;
     settings: TemplateSettings;
     // Editor-only: show greyed example content in empty fields/sections.
     guides?: boolean;
+    // Editor-only: click-to-edit text directly on the page.
+    editable?: boolean;
   } = $props();
 
   // Created once so guide entry ids stay stable across re-renders.
@@ -44,7 +47,7 @@
 </svelte:head>
 
 <div id="print-root" class="resume-page" style={styleVars}>
-  <Template {data} settings={resolved.settings} {guide} />
+  <Template {data} settings={resolved.settings} {guide} {editable} />
 </div>
 
 <style>
@@ -59,6 +62,10 @@
     /* Long tokens (URLs, emails, dense skill lists) must never escape the
        page box or a sidebar column — inherited by every template. */
     overflow-wrap: break-word;
+    /* Buttons default to text-align:center — the gallery renders this page
+       inside one, so pin the baseline alignment here. Templates that center
+       (Classic/Executive headers) still override explicitly. */
+    text-align: left;
   }
 
   /* ── Baseline resume typography every template inherits ───────────── */

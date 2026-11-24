@@ -1,28 +1,28 @@
 <script lang="ts">
   import type { CustomSection } from '../../types';
   import SectionHeading from './SectionHeading.svelte';
+  import EditableText from '../EditableText.svelte';
+  import EditableBullets from '../EditableBullets.svelte';
 
-  let { section }: { section: CustomSection } = $props();
+  let { section, editable = false }: { section: CustomSection; editable?: boolean } = $props();
 </script>
 
 <section class="sec">
   <SectionHeading title={section.title || 'Section'} />
   {#each section.entries as entry (entry.id)}
     <div class="entry">
-      {#if entry.heading || entry.sub}
+      {#if entry.heading || entry.sub || editable}
         <div class="entry-head">
-          <div><span class="entry-role">{entry.heading}</span></div>
-          {#if entry.sub}<div class="entry-meta"><span>{entry.sub}</span></div>{/if}
+          <div><EditableText as="span" class="entry-role" value={entry.heading} onchange={(v) => (entry.heading = v)} {editable} placeholder="Heading" /></div>
+          {#if entry.sub || editable}
+            <div class="entry-meta"><EditableText as="span" value={entry.sub} onchange={(v) => (entry.sub = v)} {editable} placeholder="Subheading / date" /></div>
+          {/if}
         </div>
       {/if}
-      {#if entry.body.trim()}<p class="entry-body">{entry.body}</p>{/if}
-      {#if entry.bullets.length > 0}
-        <ul class="bullets">
-          {#each entry.bullets as bullet (bullet.id)}
-            {#if bullet.text.trim()}<li>{bullet.text}</li>{/if}
-          {/each}
-        </ul>
+      {#if entry.body.trim() || editable}
+        <EditableText as="p" class="entry-body" value={entry.body} onchange={(v) => (entry.body = v)} {editable} placeholder="Body text" />
       {/if}
+      <EditableBullets bullets={entry.bullets} {editable} />
     </div>
   {/each}
 </section>

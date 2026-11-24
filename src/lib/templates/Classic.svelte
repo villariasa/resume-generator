@@ -2,9 +2,10 @@
   import type { ResumeData, TemplateSettings } from '../types';
   import { visibleSections } from './format';
   import SectionRenderer from './SectionRenderer.svelte';
+  import EditableText from './EditableText.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  let { data, settings, guide = null, editable = false }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null; editable?: boolean } = $props();
   const sections = $derived(visibleSections(data, settings, !!guide));
   const photo = $derived(settings.showPhoto ? data.basics.photoDataUrl : undefined);
 </script>
@@ -12,12 +13,12 @@
 <div class="tpl">
   <header class="head">
     {#if photo}<img class="photo" src={photo} alt="" />{/if}
-    <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
-    {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
-    <ContactLine basics={data.basics} guide={guide?.basics} />
+    <EditableText as="h1" class="name" value={data.basics.fullName} onchange={(v) => (data.basics.fullName = v)} {editable} placeholder="Your Name" />
+    {#if data.basics.headline || guide || editable}<EditableText as="p" class="headline" value={data.basics.headline} onchange={(v) => (data.basics.headline = v)} {editable} placeholder={guide?.basics.headline ?? 'Headline'} />{/if}
+    <ContactLine basics={data.basics} guide={guide?.basics} {editable} />
   </header>
 
-  <SectionRenderer {data} {sections} {guide} />
+  <SectionRenderer {data} {sections} {guide} {editable} />
 </div>
 
 <style>
@@ -38,14 +39,14 @@
     display: block;
     border: 1px solid #d6dae1;
   }
-  .name {
+  .tpl :global(.name) {
     font-family: var(--font-heading);
     font-size: calc(var(--fs-base) * 2.3);
     font-weight: 700;
     letter-spacing: 0.01em;
     margin: 0;
   }
-  .headline {
+  .tpl :global(.headline) {
     margin: calc(3px * var(--space)) 0 calc(6px * var(--space));
     font-size: calc(var(--fs-base) * 1.08);
     color: var(--accent);

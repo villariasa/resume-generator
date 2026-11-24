@@ -2,9 +2,10 @@
   import type { ResumeData, TemplateSettings } from '../types';
   import { visibleSections } from './format';
   import SectionRenderer from './SectionRenderer.svelte';
+  import EditableText from './EditableText.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  let { data, settings, guide = null, editable = false }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null; editable?: boolean } = $props();
 
   const all = $derived(visibleSections(data, settings, !!guide));
   const twoCol = $derived(settings.columns === 2);
@@ -18,19 +19,19 @@
       <img class="photo" src={data.basics.photoDataUrl} alt="" />
     {/if}
     <div>
-      <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
-      {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
-      <ContactLine basics={data.basics} guide={guide?.basics} />
+      <EditableText as="h1" class="name" value={data.basics.fullName} onchange={(v) => (data.basics.fullName = v)} {editable} placeholder="Your Name" />
+      {#if data.basics.headline || guide || editable}<EditableText as="p" class="headline" value={data.basics.headline} onchange={(v) => (data.basics.headline = v)} {editable} placeholder={guide?.basics.headline ?? 'Headline'} />{/if}
+      <ContactLine basics={data.basics} guide={guide?.basics} {editable} />
     </div>
   </header>
 
   <div class="body" class:two-col={twoCol}>
     <div class="main">
-      <SectionRenderer {data} sections={main} {guide} />
+      <SectionRenderer {data} sections={main} {guide} {editable} />
     </div>
     {#if twoCol}
       <aside class="side">
-        <SectionRenderer {data} sections={sidebar} {guide} />
+        <SectionRenderer {data} sections={sidebar} {guide} {editable} />
       </aside>
     {/if}
   </div>
@@ -53,7 +54,7 @@
     border: 3px solid rgba(255, 255, 255, 0.55);
     flex-shrink: 0;
   }
-  .name {
+  .tpl :global(.name) {
     font-family: var(--font-heading);
     font-size: calc(var(--fs-base) * 2.4);
     font-weight: 700;
@@ -61,7 +62,7 @@
     margin: 0;
     letter-spacing: -0.01em;
   }
-  .headline {
+  .tpl :global(.headline) {
     margin: calc(4px * var(--space)) 0 calc(6px * var(--space));
     font-size: calc(var(--fs-base) * 1.1);
     opacity: 0.92;

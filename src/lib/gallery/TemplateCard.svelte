@@ -31,7 +31,7 @@
 </script>
 
 <div class="card group flex flex-col overflow-hidden transition-colors hover:border-indigo-500/60">
-  <button type="button" class="relative block h-[248px] overflow-hidden bg-[var(--chrome-inset)] cursor-pointer" onclick={onpick} aria-label="Use template {name}">
+  <button type="button" class="relative block h-[248px] w-full overflow-hidden bg-[var(--chrome-inset)] text-left cursor-pointer" onclick={onpick} aria-label="Use template {name}">
     <div class="pointer-events-none mx-auto mt-3 overflow-hidden" style="width: {PREVIEW_W}px; height: calc(100% - 12px);">
       <div class="origin-top-left" style="transform: scale({scale}); width: {pageW}px;">
         <ResumePage {data} {settings} />

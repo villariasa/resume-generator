@@ -10,11 +10,14 @@ import Vivid from './Vivid.svelte';
 import Executive from './Executive.svelte';
 import Atlas from './Atlas.svelte';
 import Onyx from './Onyx.svelte';
+import Keystone from './Keystone.svelte';
 
 export type TemplateComponent = Component<{
   data: ResumeData;
   settings: TemplateSettings;
   guide?: ResumeData | null;
+  // Click-to-edit directly on the page. Only true in the live editor preview.
+  editable?: boolean;
 }>;
 
 export interface TemplateDef {
@@ -54,6 +57,19 @@ export const BUILTIN_TEMPLATES: TemplateDef[] = [
     defaults: { ...defaultSettings('onyx'), accentColor: '#b45309', fontPairing: 'source-serif' },
     supportsColumns: false,
     atsSafe: false,
+  },
+  {
+    id: 'keystone',
+    name: 'Keystone',
+    description: 'Skills-first hybrid — a prominent tech/skills band right under the header, ahead of work history. Built for ATS keyword-matching and career changers.',
+    component: Keystone as TemplateComponent,
+    defaults: {
+      ...defaultSettings('keystone'),
+      accentColor: '#0369a1',
+      sectionOrder: ['summary', 'skills', 'work', 'projects', 'education', 'certifications', 'languages'],
+    },
+    supportsColumns: false,
+    atsSafe: true,
   },
   {
     id: 'classic',

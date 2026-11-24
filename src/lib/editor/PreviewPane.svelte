@@ -43,7 +43,7 @@
 
   <div class="zoom-wrap mx-auto w-fit origin-top" style="transform: scale({app.zoom});" bind:this={pageEl}>
     <div class="relative">
-      <ResumePage data={resume.data} settings={resume.settings} guides />
+      <ResumePage data={resume.data} settings={resume.settings} guides editable />
       {#each breakOffsets as offset}
         <div
           class="no-print pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-rose-400/60"

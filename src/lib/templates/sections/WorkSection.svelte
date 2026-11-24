@@ -2,8 +2,10 @@
   import type { WorkEntry } from '../../types';
   import { formatRange } from '../format';
   import SectionHeading from './SectionHeading.svelte';
+  import EditableText from '../EditableText.svelte';
+  import EditableBullets from '../EditableBullets.svelte';
 
-  let { entries, title = 'Experience' }: { entries: WorkEntry[]; title?: string } = $props();
+  let { entries, title = 'Experience', editable = false }: { entries: WorkEntry[]; title?: string; editable?: boolean } = $props();
 </script>
 
 <section class="sec">
@@ -12,23 +14,35 @@
     <div class="entry">
       <div class="entry-head">
         <div>
-          <span class="entry-role">{entry.role}</span>
-          {#if entry.company}<span class="entry-at"> · </span><span class="entry-org">{entry.company}</span>{/if}
+          <EditableText as="span" class="entry-role" value={entry.role} onchange={(v) => (entry.role = v)} {editable} placeholder="Role" />
+          {#if entry.company || editable}
+            <span class="entry-at"> · </span>
+            <EditableText as="span" class="entry-org" value={entry.company} onchange={(v) => (entry.company = v)} {editable} placeholder="Company" />
+          {/if}
         </div>
         <div class="entry-meta">
-          {#if entry.location}<span>{entry.location}</span>{/if}
-          {#if formatRange(entry.startDate, entry.endDate, entry.current)}
-            <span class="entry-dates">{formatRange(entry.startDate, entry.endDate, entry.current)}</span>
+          {#if editable}
+            <EditableText as="span" value={entry.location} onchange={(v) => (entry.location = v)} editable placeholder="Location" />
+            <span class="entry-dates">
+              <EditableText as="span" value={entry.startDate} onchange={(v) => (entry.startDate = v)} editable placeholder="Start" />
+              <span>—</span>
+              <EditableText
+                as="span"
+                value={entry.current ? 'Present' : entry.endDate}
+                onchange={(v) => (entry.endDate = v)}
+                editable={!entry.current}
+                placeholder="End"
+              />
+            </span>
+          {:else}
+            {#if entry.location}<span>{entry.location}</span>{/if}
+            {#if formatRange(entry.startDate, entry.endDate, entry.current)}
+              <span class="entry-dates">{formatRange(entry.startDate, entry.endDate, entry.current)}</span>
+            {/if}
           {/if}
         </div>
       </div>
-      {#if entry.bullets.length > 0}
-        <ul class="bullets">
-          {#each entry.bullets as bullet (bullet.id)}
-            {#if bullet.text.trim()}<li>{bullet.text}</li>{/if}
-          {/each}
-        </ul>
-      {/if}
+      <EditableBullets bullets={entry.bullets} {editable} />
     </div>
   {/each}
 </section>

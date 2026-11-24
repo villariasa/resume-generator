@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ResumeData } from '../../types';
-  import { uid } from '../../utils';
+  import { uid, downscaleImage } from '../../utils';
   import Icon from '../../ui/Icon.svelte';
 
   let { data }: { data: ResumeData } = $props();
@@ -9,12 +9,26 @@
     data.basics.links.push({ id: uid(), label: '', url: '' });
   }
 
-  function onPhoto(e: Event) {
-    const file = (e.currentTarget as HTMLInputElement).files?.[0];
+  let photoError = $state('');
+  let photoBusy = $state(false);
+
+  // Any size/format from the device camera works — it's downscaled and
+  // re-encoded in the browser before ever touching storage, so printing a
+  // large original still "just works" without hitting localStorage limits.
+  async function onPhoto(e: Event) {
+    photoError = '';
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => (data.basics.photoDataUrl = reader.result as string);
-    reader.readAsDataURL(file);
+    photoBusy = true;
+    try {
+      data.basics.photoDataUrl = await downscaleImage(file);
+    } catch {
+      photoError = "Couldn't read that image — try a different file.";
+    } finally {
+      photoBusy = false;
+      input.value = '';
+    }
   }
 </script>
 
@@ -64,7 +78,10 @@
 <div class="mt-3 flex items-center gap-3">
   <div class="min-w-0">
     <span class="label">Photo (used by templates that support it)</span>
-    <input class="text-xs text-[var(--chrome-muted)]" type="file" accept="image/*" onchange={onPhoto} />
+    <input class="text-xs text-[var(--chrome-muted)]" type="file" accept="image/*" onchange={onPhoto} disabled={photoBusy} />
+    {#if photoBusy}<p class="mt-1 text-xs text-[var(--chrome-muted)]">Optimizing image…</p>{/if}
+    {#if photoError}<p class="mt-1 text-xs text-red-400">{photoError}</p>{/if}
+    <p class="mt-1 text-xs text-[var(--chrome-faint)]">Any size works — resized in your browser, never uploaded anywhere. Excluded from share links.</p>
   </div>
   {#if data.basics.photoDataUrl}
     <img src={data.basics.photoDataUrl} alt="" class="w-10 h-10 rounded-full object-cover border border-[var(--chrome-border)]" />

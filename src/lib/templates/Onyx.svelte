@@ -2,9 +2,10 @@
   import type { ResumeData, TemplateSettings } from '../types';
   import { visibleSections } from './format';
   import SectionRenderer from './SectionRenderer.svelte';
+  import EditableText from './EditableText.svelte';
   import ContactLine from './sections/ContactLine.svelte';
 
-  let { data, settings, guide = null }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null } = $props();
+  let { data, settings, guide = null, editable = false }: { data: ResumeData; settings: TemplateSettings; guide?: ResumeData | null; editable?: boolean } = $props();
   const sections = $derived(visibleSections(data, settings, !!guide));
 </script>
 
@@ -12,20 +13,20 @@
   <header class="band">
     <div class="band-inner">
       <div>
-        <h1 class="name" class:ph={!data.basics.fullName}>{data.basics.fullName || 'Your Name'}</h1>
-        {#if data.basics.headline || guide}<p class="headline" class:ph={!data.basics.headline}>{data.basics.headline || guide?.basics.headline}</p>{/if}
+        <EditableText as="h1" class="name" value={data.basics.fullName} onchange={(v) => (data.basics.fullName = v)} {editable} placeholder="Your Name" />
+        {#if data.basics.headline || guide || editable}<EditableText as="p" class="headline" value={data.basics.headline} onchange={(v) => (data.basics.headline = v)} {editable} placeholder={guide?.basics.headline ?? 'Headline'} />{/if}
       </div>
       {#if data.basics.photoDataUrl && settings.showPhoto}
         <img class="photo" src={data.basics.photoDataUrl} alt="" />
       {/if}
     </div>
     <div class="band-contact">
-      <ContactLine basics={data.basics} guide={guide?.basics} separator="    " />
+      <ContactLine basics={data.basics} guide={guide?.basics} {editable} separator="    " />
     </div>
   </header>
 
   <div class="body">
-    <SectionRenderer {data} {sections} {guide} />
+    <SectionRenderer {data} {sections} {guide} {editable} />
   </div>
 </div>
 
@@ -41,7 +42,7 @@
     align-items: center;
     gap: 20px;
   }
-  .name {
+  .tpl :global(.name) {
     font-family: var(--font-heading);
     font-size: calc(var(--fs-base) * 2.4);
     font-weight: 600;
@@ -50,7 +51,7 @@
     margin: 0;
     line-height: 1.1;
   }
-  .headline {
+  .tpl :global(.headline) {
     margin: calc(5px * var(--space)) 0 0;
     color: color-mix(in srgb, var(--accent) 60%, #ffffff);
     letter-spacing: 0.22em;

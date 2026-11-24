@@ -1,6 +1,6 @@
 import type { SavedResume, TemplateSettings, ResumeData } from './types';
 import { defaultSettings, emptyResumeData, SCHEMA_VERSION } from './types';
-import { saveResume, setLastOpenId } from './storage';
+import { saveResume, setLastOpenId, StorageWriteError } from './storage';
 
 export type View = 'gallery' | 'editor' | 'viewer';
 
@@ -25,6 +25,7 @@ export const app = $state({
   current: null as SavedResume | null,
   shared: null as SharedPayload | null,
   saveState: 'saved' as 'saved' | 'saving',
+  saveError: '' as string,
   zoom: 0.8,
   customizerOpen: false,
   // mobile: which pane is visible under lg breakpoint
@@ -69,8 +70,14 @@ export function scheduleSave(): void {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     if (app.current) {
-      saveResume($state.snapshot(app.current) as SavedResume);
-      app.saveState = 'saved';
+      try {
+        saveResume($state.snapshot(app.current) as SavedResume);
+        app.saveState = 'saved';
+        app.saveError = '';
+      } catch (err) {
+        app.saveState = 'saved';
+        app.saveError = err instanceof StorageWriteError ? err.message : 'Could not save.';
+      }
     }
   }, 500);
 }
@@ -78,7 +85,13 @@ export function scheduleSave(): void {
 export function flushSave(): void {
   clearTimeout(saveTimer);
   if (app.current) {
-    saveResume($state.snapshot(app.current) as SavedResume);
-    app.saveState = 'saved';
+    try {
+      saveResume($state.snapshot(app.current) as SavedResume);
+      app.saveState = 'saved';
+      app.saveError = '';
+    } catch (err) {
+      app.saveState = 'saved';
+      app.saveError = err instanceof StorageWriteError ? err.message : 'Could not save.';
+    }
   }
 }
